@@ -36,7 +36,7 @@ async def random(ctx, arg):
 
 @bot.command()
 async def bozo(ctx):
-    '''Generate a 280 char text from Bolsonaro\'s family tweets.'''
+    '''Generate a 280 char text from Bolsonaro\'s tweets.'''
     await ctx.send(model.make_short_sentence(280))
 
 

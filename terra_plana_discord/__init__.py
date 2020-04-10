@@ -64,9 +64,13 @@ async def rito(ctx, *, summoner):
     if spec_resp.status_code == 404:
         await ctx.send('''```
                        Partida não encontrada!```''')
-
-    players = spec_resp.json()['participants']
+    spec_resp = spec_resp.json()
+    players = spec_resp['participants']
     elos = list()
+    queue_type = 'RANKED_SOLO_5x5'
+
+    if spec_resp['gameQueueConfigId'] == 440:
+        queue_type = 'RANKED_FLEX_SR'
 
     for player in players:
         ranked_stats = f'/lol/league/v4/entries/by-summoner/{player["summonerId"]}'
@@ -74,7 +78,7 @@ async def rito(ctx, *, summoner):
         has_elo = False
 
         for i in resp:
-            if i['queueType'] == 'RANKED_SOLO_5x5':
+            if i['queueType'] == queue_type:
                 has_elo = True
                 elos.append(f'{i["tier"]} {i["rank"]}')
                 break

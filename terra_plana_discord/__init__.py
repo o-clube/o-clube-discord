@@ -69,7 +69,7 @@ async def rito(ctx, *, summoner):
     elos = list()
     queue_type = 'RANKED_SOLO_5x5'
 
-    if spec_resp['gameQueueConfigId'] == 440:
+    if  'gameQueueConfigId' in spec_resp and spec_resp['gameQueueConfigId'] == 440:
         queue_type = 'RANKED_FLEX_SR'
 
     for player in players:

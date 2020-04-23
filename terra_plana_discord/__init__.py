@@ -5,7 +5,6 @@ import praw
 import requests
 from discord.ext import commands
 from beautifultable import BeautifulTable
-
 import os
 
 dirname = os.path.dirname(__file__)
@@ -42,6 +41,22 @@ async def bozo(ctx):
     await ctx.send(model.make_short_sentence(280))
 
 @bot.command()
+async def dic(ctx, *, word):
+    ''''Returns the meaning of a word using google dictionary api'''
+    dict_resp = requests.get('https://api.dictionaryapi.dev/api/v1/entries/pt-BR/'+requests.utils.quote(word))
+    if dict_resp.status_code == 404:
+        await ctx.send('Palavra não encontrada')
+
+    dict_resp = dict_resp.json()
+    meaning = str()
+    for i, j in dict_resp[0]['meaning'].items():
+        meaning +=f'**{i.capitalize()}**\n'
+        for x in range(0, len(j)):
+            meaning +=f'\t*{x+1}*. {j[x]["definition"]}\n'
+
+    await ctx.send(meaning)
+
+@bot.command()
 async def rito(ctx, *, summoner):
     '''Searchs for a live match in the RIOT API.'''
     riot_url = 'https://br1.api.riotgames.com'
@@ -62,8 +77,7 @@ async def rito(ctx, *, summoner):
     spec_resp = requests.get(riot_url+spec_api, headers=headers)
 
     if spec_resp.status_code == 404:
-        await ctx.send('''```
-                       Partida não encontrada!```''')
+        await ctx.send('''```\nPartida não encontrada!```''')
     spec_resp = spec_resp.json()
     players = spec_resp['participants']
     elos = list()
@@ -97,4 +111,3 @@ async def rito(ctx, *, summoner):
     await ctx.send(f'''```\n{t}```''')
 
 bot.run(os.getenv('DISCORD_TOKEN'))
-

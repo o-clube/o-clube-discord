@@ -5,6 +5,7 @@ import praw
 import requests
 from discord.ext import commands
 from beautifultable import BeautifulTable
+from lxml import etree, html
 import os
 
 dirname = os.path.dirname(__file__)
@@ -29,8 +30,14 @@ async def random(ctx, arg):
     '''Get a random post from a given subreddit.'''
     try:
         post = reddit.subreddit(arg).random()
-        if  'v.redd.it' in post.url:
-            post.url += '/DASH_360?source=fallback'
+        if 'v.redd.it' in post.url:
+            post.url = post.media['reddit_video']['fallback_url']
+        if 'redgifs' in post.url:
+            result = requests.get(post.url)
+            root = html.fromstring(result.text)
+            tree = etree.ElementTree(root)
+            link_id = tree.xpath('/html/head/meta[23]/@content')[0].split('/')[-1]
+            post.url = 'https://thcf6.redgifs.com/' + link_id + '.webm'
         await ctx.send(post.url)
     except Exception as e:
         await ctx.send('Cai da borda e não consegui achar o que você pediu!')

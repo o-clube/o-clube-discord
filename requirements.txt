@@ -3,3 +3,4 @@ praw
 markovify
 requests
 beautifultable
+lxml

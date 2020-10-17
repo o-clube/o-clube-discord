@@ -4,3 +4,4 @@ markovify
 requests
 beautifultable
 lxml
+pytz

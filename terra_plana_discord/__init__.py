@@ -1,12 +1,15 @@
+import os
+import asyncio
 import discord
 import json
 import markovify
 import praw
 import requests
-from discord.ext import commands
+from datetime import time, datetime
+from discord.ext import commands, tasks
 from beautifultable import BeautifulTable
 from lxml import etree, html
-import os
+import utils
 
 dirname = os.path.dirname(__file__)
 
@@ -22,8 +25,9 @@ reddit = praw.Reddit(client_id=os.getenv('REDDIT_CLIENT_ID'),
                      password=os.getenv('REDDIT_PASS'),
                      user_agent="'<reddit-discord> accessAPI:v0.0.1 (by /u/<magu1La>)")
 
-
 bot = commands.Bot(command_prefix='>')
+
+bot.mglu_last_price = 0
 
 @bot.command()
 async def random(ctx, arg):
@@ -116,5 +120,49 @@ async def rito(ctx, *, summoner):
     t.append_row([elos[4], players[4]['summonerName'], 'x', players[9]['summonerName'], elos[9]])
 
     await ctx.send(f'''```\n{t}```''')
+
+
+@bot.command()
+async def b3(ctx, *, ticket):
+    '''Search for a STOCK in BOVESPA.'''
+
+    yahoo = f'https://query1.finance.yahoo.com/v8/finance/chart/{ticket}.SA?region=US&'\
+        'lang=en-US&includePrePost=false&interval=2m&range=1d&corsDomain=finance.yahoo.com&.tsrc=finance'
+    result = requests.get(yahoo).json()
+
+    stock = result['chart']['result'][0]['meta']
+
+    await ctx.send(f"R${stock['regularMarketPrice']}")
+
+@tasks.loop(minutes=15)
+async def check_mglu():
+    if utils.is_time_between(time(10,0), time(18,0)) and datetime.today().weekday() < 5:
+        yahoo = f'https://query1.finance.yahoo.com/v8/finance/chart/MGLU3.SA?region=US&'\
+            'lang=en-US&includePrePost=false&interval=2m&range=1d&corsDomain=finance.yahoo.com&.tsrc=finance'
+
+        result = requests.get(yahoo).json()
+
+        stock = result['chart']['result'][0]['meta']
+        channel = bot.get_channel(765659426274934805)
+        price = stock['regularMarketPrice']
+        emoji = str()
+
+        if not bot.mglu_last_price:
+            bot.mglu_last_price = price
+
+        if price > bot.mglu_last_price:
+            emoji = ':chart_with_upwards_trend:'
+        elif price < bot.mglu_last_price:
+            emoji = ':chart_with_downwards_trend:'
+        else:
+            emoji = '<:OMEGALU:766781445036965898>'
+
+        bot.mglu_last_price = price
+
+        await channel.send(f"<@&766750700931645451> **MGLU3** R${price} - {emoji}")
+
+@bot.event
+async def on_ready():
+    check_mglu.start()
 
 bot.run(os.getenv('DISCORD_TOKEN'))

@@ -143,7 +143,7 @@ async def check_mglu():
         result = requests.get(yahoo).json()
 
         stock = result['chart']['result'][0]['meta']
-        channel = bot.get_channel(765659426274934805)
+        channel = bot.get_channel(768224643236233226)
         price = stock['regularMarketPrice']
         emoji = str()
 

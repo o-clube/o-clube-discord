@@ -32,9 +32,6 @@ reddit = praw.Reddit(client_id=os.getenv('REDDIT_CLIENT_ID'),
 
 bot = commands.Bot(command_prefix='>')
 
-bot.mglu_last_price = 0
-bot.mglu_message = None
-
 @bot.command()
 async def random(ctx, arg):
     '''Get a random post from a given subreddit.'''

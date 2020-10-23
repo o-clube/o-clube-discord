@@ -20,6 +20,6 @@ class Stock(Base):
 class StockMessage(Base):
     __tablename__ = 'stocks_message'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(String, primary_key=True)
 
 Base.metadata.create_all(engine)

@@ -15,7 +15,7 @@ class Stock(Base):
     __tablename__ = 'stocks'
 
     id = Column(String, primary_key=True)
-    last_price = Column(String, nullable=True)
+    last_price = Column(Numeric, nullable=True)
 
 class StockMessage(Base):
     __tablename__ = 'stocks_message'

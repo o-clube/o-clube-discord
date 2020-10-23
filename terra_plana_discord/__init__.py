@@ -5,11 +5,16 @@ import json
 import markovify
 import praw
 import requests
+import traceback
+import logging
+import pytz
 from datetime import time, datetime
+from discord import NotFound, Embed
 from discord.ext import commands, tasks
 from beautifultable import BeautifulTable
 from lxml import etree, html
 import utils
+from models import session, Stock, StockMessage
 
 dirname = os.path.dirname(__file__)
 
@@ -28,6 +33,7 @@ reddit = praw.Reddit(client_id=os.getenv('REDDIT_CLIENT_ID'),
 bot = commands.Bot(command_prefix='>')
 
 bot.mglu_last_price = 0
+bot.mglu_message = None
 
 @bot.command()
 async def random(ctx, arg):
@@ -123,46 +129,78 @@ async def rito(ctx, *, summoner):
 
 
 @bot.command()
-async def b3(ctx, *, ticket):
+@commands.has_role('B3')
+async def b3(ctx, op, ticket):
     '''Search for a STOCK in BOVESPA.'''
-
-    yahoo = f'https://query1.finance.yahoo.com/v8/finance/chart/{ticket}.SA?region=US&'\
-        'lang=en-US&includePrePost=false&interval=2m&range=1d&corsDomain=finance.yahoo.com&.tsrc=finance'
-    result = requests.get(yahoo).json()
-
-    stock = result['chart']['result'][0]['meta']
-
-    await ctx.send(f"R${stock['regularMarketPrice']}")
-
-@tasks.loop(minutes=15)
-async def check_mglu():
-    if utils.is_time_between(time(10,0), time(18,0)) and datetime.today().weekday() < 5:
-        yahoo = f'https://query1.finance.yahoo.com/v8/finance/chart/MGLU3.SA?region=US&'\
+    if op == 'check':
+        yahoo = f'https://query1.finance.yahoo.com/v8/finance/chart/{ticket}.SA?region=US&'\
             'lang=en-US&includePrePost=false&interval=2m&range=1d&corsDomain=finance.yahoo.com&.tsrc=finance'
-
         result = requests.get(yahoo).json()
 
         stock = result['chart']['result'][0]['meta']
+        await ctx.send(f"R${stock['regularMarketPrice']}")
+
+    if op == 'add':
+        session.add(Stock(id=ticket.upper()))
+        session.commit()
+        await ctx.send(f"{ticket} adicionado a lista de ações.")
+
+    elif op == 'remove':
+        session.query(Stock).filter_by(id=ticket).delete()
+        await ctx.send(f"{ticket} removido da lista de ações.")
+        session.commit()
+
+@tasks.loop(minutes=15)
+async def check_b3():
+    if utils.is_time_between(time(10,0), time(18,0)) and datetime.today().weekday() < 5:
+
+        stocks = session.query(Stock).all()
+        message = session.query(StockMessage).first()
+
         channel = bot.get_channel(768224643236233226)
-        price = stock['regularMarketPrice']
-        emoji = str()
 
-        if not bot.mglu_last_price:
-            bot.mglu_last_price = price
+        embed = Embed(title="ATUALIZAÇÃO B3", description="Valor atualizado em tempo real das ações na B3", color=0x004fe0)
+        embed.set_footer(text=datetime.now(pytz.timezone("America/Sao_Paulo")).strftime("%d/%m/%Y, %H:%M:%S"))
 
-        if price > bot.mglu_last_price:
-            emoji = ':chart_with_upwards_trend:'
-        elif price < bot.mglu_last_price:
-            emoji = ':chart_with_downwards_trend:'
+        for stock in stocks:
+            yahoo = f'https://query1.finance.yahoo.com/v8/finance/chart/{stock.id}.SA?region=US&'\
+            'lang=en-US&includePrePost=false&interval=2m&range=1d&corsDomain=finance.yahoo.com&.tsrc=finance'
+
+            result = requests.get(yahoo).json()
+
+            data = result['chart']['result'][0]['meta']
+
+            price = data['regularMarketPrice']
+            emoji = str()
+
+            if stock.last_price is None:
+                stock.last_price = price
+
+            if price > stock.last_price:
+                emoji = ':chart_with_upwards_trend:'
+            elif price < stock.last_price:
+                emoji = ':chart_with_downwards_trend:'
+            else:
+                emoji = '<:OMEGALU:766781445036965898>'
+
+            stock.last_price = price
+            embed.add_field(name=stock.id, value=f"R${price} - {emoji}", inline=False)
+
+            session.commit()
+
+        if message:
+            m = await channel.fetch_message(message.id)
+            await m.edit(embed=embed)
         else:
-            emoji = '<:OMEGALU:766781445036965898>'
+            m = await channel.send(embed=embed)
+            session.add(StockMessage(id=m.id))
+            session.commit()
 
-        bot.mglu_last_price = price
 
-        await channel.send(f"<@&766750700931645451> **MGLU3** R${price} - {emoji}")
+
 
 @bot.event
 async def on_ready():
-    check_mglu.start()
+    check_b3.start()
 
 bot.run(os.getenv('DISCORD_TOKEN'))

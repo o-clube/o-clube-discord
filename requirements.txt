@@ -5,3 +5,5 @@ requests
 beautifultable
 lxml
 pytz
+sqlalchemy
+psycopg2-binary

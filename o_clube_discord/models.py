@@ -21,5 +21,11 @@ class StockMessage(Base):
     __tablename__ = 'stocks_message'
 
     id = Column(String, primary_key=True)
+    # update_time = Column(Integer)
+
+class Server(Base):
+    __tablename__ = 'servers'
+
+    id = Column(String, primary_key=True)
 
 Base.metadata.create_all(engine)

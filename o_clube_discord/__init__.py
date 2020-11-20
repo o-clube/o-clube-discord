@@ -13,8 +13,9 @@ from discord import NotFound, Embed
 from discord.ext import commands, tasks
 from beautifultable import BeautifulTable
 from lxml import etree, html
-import utils
-from models import session, Stock, StockMessage
+
+from . import utils
+from .models import session, Stock, StockMessage
 
 dirname = os.path.dirname(__file__)
 
@@ -147,7 +148,7 @@ async def b3(ctx, op, ticket):
         await ctx.send(f"{ticket} removido da lista de ações.")
         session.commit()
 
-@tasks.loop(minutes=15)
+@tasks.loop(minutes=1)
 async def check_b3():
     if utils.is_time_between(time(10,0), time(18,0)) and datetime.today().weekday() < 5:
 
@@ -161,7 +162,7 @@ async def check_b3():
 
         for stock in stocks:
             yahoo = f'https://query1.finance.yahoo.com/v8/finance/chart/{stock.id}.SA?region=US&'\
-            'lang=en-US&includePrePost=false&interval=2m&range=1d&corsDomain=finance.yahoo.com&.tsrc=finance'
+            'lang=en-US&includePrePost=false&interval=1m&range=1d&corsDomain=finance.yahoo.com&.tsrc=finance'
 
             result = requests.get(yahoo).json()
 
@@ -181,7 +182,7 @@ async def check_b3():
                 emoji = '<:OMEGALU:766781445036965898>'
 
             stock.last_price = price
-            embed.add_field(name=stock.id, value=f"R${price} - {emoji}", inline=False)
+            embed.add_field(name=stock.id, value=f"R${price} - {emoji} ({((price / data['previousClose']) * 100 - 100):.2f}%)", inline=False)
 
             session.commit()
 

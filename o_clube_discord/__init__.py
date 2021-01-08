@@ -148,7 +148,7 @@ async def b3(ctx, op, ticket):
         await ctx.send(f"{ticket} removido da lista de ações.")
         session.commit()
 
-@tasks.loop(minutes=1)
+@tasks.loop(minutes=5)
 async def check_b3():
     if utils.is_time_between(time(10,0), time(18,0)) and datetime.today().weekday() < 5:
 

@@ -139,7 +139,7 @@ class Warzone(Cog):
 
                 now = int(datetime.utcnow().strftime("%s"))
 
-                if t.last_match == match["matchID"] or now - match["utcEndSeconds"] > 35 * 60:
+                if t.last_match == match["matchID"] or now - match["utcEndSeconds"] > 30 * 60:
                     continue
 
                 t.last_match = match["matchID"]

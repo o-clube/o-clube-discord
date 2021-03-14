@@ -157,10 +157,10 @@ class Warzone(Cog):
                     color=embed_color[placement_color],
                 )
 
-                embed.add_field(name="Match duration", value=f"{int(match['duration'] // 6*10000)} minutes", inline=True)
+                embed.add_field(name="Match duration", value=f"{int(match['duration'] // 60000)} minutes", inline=True)
                 embed.add_field(
                     name="Team survived",
-                    value=f"{int(match['playerStats']['teamSurvivalTime']) // 6*10000} minutes",
+                    value=f"{int(match['playerStats']['teamSurvivalTime']) // 60000} minutes",
                     inline=True,
                 )
                 embed.add_field(name=chr(173), value=chr(173), inline=True)  # field skip

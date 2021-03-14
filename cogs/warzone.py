@@ -117,7 +117,7 @@ class Warzone(Cog):
 
         return await ctx.reply(embed=embed)
 
-    @tasks.loop(minutes=3)
+    @tasks.loop(minutes=10)
     async def fetch_track(self):
         """Task for fetching warzone matches of tracked users."""
         logging.info("Starting tracking...")
@@ -139,7 +139,7 @@ class Warzone(Cog):
 
                 now = int(datetime.utcnow().strftime("%s"))
 
-                if t.last_match == match["matchID"] or now - match["utcEndSeconds"] > 6 * 60:
+                if t.last_match == match["matchID"] or now - match["utcEndSeconds"] > 35 * 60:
                     continue
 
                 t.last_match = match["matchID"]

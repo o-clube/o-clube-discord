@@ -150,7 +150,7 @@ class Warzone(Cog):
             placement_color = placement - 1 if placement < 4 else -1
 
             embed = Embed(
-                title=f"{match['player']['name']}'s team finished in __{ordinal(placement)}__ against {match['teamCount']} teams.",
+                title=f"{member.name}'s team finished in __{ordinal(placement)}__ against {match['teamCount']} teams.",
                 color=embed_color[placement_color],
             )
 

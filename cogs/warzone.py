@@ -1,5 +1,6 @@
 """Warzone COG module."""
 
+import logging
 from datetime import datetime, timedelta
 from os import getenv
 
@@ -129,48 +130,52 @@ class Warzone(Cog):
         embed_color = [Color.gold(), Color.light_grey(), Color.dark_orange(), Color.dark_red()]
 
         for t in tracked:
-            battletag = requests.utils.quote(t.battletag)
-            url = f"https://my.callofduty.com/api/papi-client/crm/cod/v2/title/mw/platform/battle/gamer/{battletag}/matches/wz/start/0/end/0/details?limit=1"
+            try:
+                battletag = requests.utils.quote(t.battletag)
+                url = f"https://my.callofduty.com/api/papi-client/crm/cod/v2/title/mw/platform/battle/gamer/{battletag}/matches/wz/start/0/end/0/details?limit=1"
 
-            match = s.get(url).json()["data"]["matches"][0]
+                match = s.get(url).json()["data"]["matches"][0]
 
-            now = int(datetime.utcnow().strftime("%s"))
+                now = int(datetime.utcnow().strftime("%s"))
 
-            if t.last_match == match["matchID"] or now - match["utcEndSeconds"] > 6 * 60:
-                continue
+                if t.last_match == match["matchID"] or now - match["utcEndSeconds"] > 6 * 60:
+                    continue
 
-            t.last_match = match["matchID"]
+                t.last_match = match["matchID"]
 
-            channel = self.bot.get_channel(t.channel_id)
-            member = self.bot.get_user(t.member_id)
+                channel = self.bot.get_channel(t.channel_id)
+                member = self.bot.get_user(t.member_id)
 
-            ordinal = lambda n: f'{n}{"tsnrhtdd"[(n//10%10!=1)*(n%10<4)*n%10::4]}'
+                ordinal = lambda n: f'{n}{"tsnrhtdd"[(n//10%10!=1)*(n%10<4)*n%10::4]}'
 
-            placement = int(match["playerStats"]["teamPlacement"])
-            placement_color = placement - 1 if placement < 4 else -1
+                placement = int(match["playerStats"]["teamPlacement"])
+                placement_color = placement - 1 if placement < 4 else -1
 
-            embed = Embed(
-                title=f"{member.name}'s team finished in __{ordinal(placement)}__ against {match['teamCount']} teams.",
-                color=embed_color[placement_color],
-            )
+                embed = Embed(
+                    title=f"{member.name}'s team finished in __{ordinal(placement)}__ against {match['teamCount']} teams.",
+                    color=embed_color[placement_color],
+                )
 
-            embed.add_field(name="Match duration", value=f"{int(match['duration'] // 6*10000)} minutes", inline=True)
-            embed.add_field(
-                name="Team survived",
-                value=f"{int(match['playerStats']['teamSurvivalTime']) // 6*10000} minutes",
-                inline=True,
-            )
-            embed.add_field(name=chr(173), value=chr(173), inline=True)  # field skip
+                embed.add_field(name="Match duration", value=f"{int(match['duration'] // 6*10000)} minutes", inline=True)
+                embed.add_field(
+                    name="Team survived",
+                    value=f"{int(match['playerStats']['teamSurvivalTime']) // 6*10000} minutes",
+                    inline=True,
+                )
+                embed.add_field(name=chr(173), value=chr(173), inline=True)  # field skip
 
-            embed.add_field(name="KDR", value=round(match["playerStats"]["kdRatio"], 2), inline=True)
-            embed.add_field(name="Kills", value=int(match["playerStats"]["kills"]), inline=True)
-            embed.add_field(name="Deaths", value=int(match["playerStats"]["deaths"]), inline=True)
+                embed.add_field(name="KDR", value=round(match["playerStats"]["kdRatio"], 2), inline=True)
+                embed.add_field(name="Kills", value=int(match["playerStats"]["kills"]), inline=True)
+                embed.add_field(name="Deaths", value=int(match["playerStats"]["deaths"]), inline=True)
 
-            embed.add_field(name="Damage done", value=int(match["playerStats"]["damageDone"]), inline=True)
-            embed.add_field(name="Damage taken", value=int(match["playerStats"]["damageTaken"]), inline=True)
-            embed.add_field(name=chr(173), value=chr(173), inline=True)  # field skip
+                embed.add_field(name="Damage done", value=int(match["playerStats"]["damageDone"]), inline=True)
+                embed.add_field(name="Damage taken", value=int(match["playerStats"]["damageTaken"]), inline=True)
+                embed.add_field(name=chr(173), value=chr(173), inline=True)  # field skip
 
-            await channel.send(embed=embed)
+                await channel.send(embed=embed)
+
+            except Exception as e:
+                logging.exception(e)
 
         session.commit()
 

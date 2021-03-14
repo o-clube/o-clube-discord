@@ -120,7 +120,7 @@ class Warzone(Cog):
     @tasks.loop(minutes=3)
     async def fetch_track(self):
         """Task for fetching warzone matches of tracked users."""
-
+        logging.info("Starting tracking...")
         tracked = session.query(wz_model).filter_by(track=True).all()
 
         if not len(tracked):

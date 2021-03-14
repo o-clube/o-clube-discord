@@ -57,6 +57,7 @@ class Warzone(Cog):
         result = session.query(wz_model).filter_by(member_id=member.id).first()
         if result:
             result.track = False
+            session.commit()
             return await ctx.reply(f"Track disabled for {result.battletag}.")
         await ctx.reply(f"{ctx.message.author} not registered. Use 'register' first.")
 

@@ -4,6 +4,7 @@ import logging
 from datetime import datetime, timedelta
 from os import getenv
 
+import pytz
 import requests
 from discord import Color, Embed
 from discord.ext import tasks
@@ -117,7 +118,7 @@ class Warzone(Cog):
 
         return await ctx.reply(embed=embed)
 
-    @tasks.loop(minutes=10)
+    @tasks.loop(minutes=int(getenv("COD_TRACK_TIME", 10)), reconnect=True)
     async def fetch_track(self):
         """Task for fetching warzone matches of tracked users."""
         logging.info("Starting tracking...")
@@ -172,7 +173,13 @@ class Warzone(Cog):
                 embed.add_field(name="Damage done", value=int(match["playerStats"]["damageDone"]), inline=True)
                 embed.add_field(name="Damage taken", value=int(match["playerStats"]["damageTaken"]), inline=True)
                 embed.add_field(name=chr(173), value=chr(173), inline=True)  # field skip
-
+                started = datetime.fromtimestamp(match["utcStartSeconds"], pytz.timezone("America/Sao_Paulo")).strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                )
+                ended = datetime.fromtimestamp(match["utcEndSeconds"], pytz.timezone("America/Sao_Paulo")).strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                )
+                embed.set_footer(text=f"Started at: {started}\nEnded at: {ended}")
                 await channel.send(embed=embed)
 
             except Exception as e:

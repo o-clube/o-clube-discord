@@ -6,7 +6,7 @@ import inflect
 from discord import Color, Embed, utils
 from discord.ext import tasks
 from discord.ext.commands import Cog, group
-from sqlalchemy import extract
+from sqlalchemy import extract, or_
 
 from models import BDay, User, session
 
@@ -21,7 +21,6 @@ class Birthday(Cog):
         self.bot = bot
         self.happy_bday.start()
         self.inflect = inflect.engine()
-
     @group(name="bday", pass_context=True)
     async def bday(self, ctx):
         """Birthday wishing"""
@@ -60,7 +59,8 @@ class Birthday(Cog):
 
     @tasks.loop(minutes=60, reconnect=True)
     async def happy_bday(self):
-        servers = session.query(BDay).filter(BDay.last_notify.isnot(datetime.today())).all()
+        servers = session.query(BDay).filter(or_(BDay.last_notify != datetime.today(),
+                                                 BDay.last_notify == None)).all()
         current_year = datetime.today().year
         for s in servers:
             users = (

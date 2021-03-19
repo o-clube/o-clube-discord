@@ -11,7 +11,7 @@ Base = declarative_base()
 
 engine = create_engine(getenv("DATABASE_URL", "sqlite:///test.db"))
 
-if not database_exists(engine.url):
+if __debug__ and not database_exists(engine.url):
     create_database(engine.url)
 
 Session = sessionmaker(bind=engine)

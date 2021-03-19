@@ -4,3 +4,4 @@ psycopg2-binary==2.8.6
 requests==2.25.1
 pytz==2021.1
 inflect==5.3.0
+sqlalchemy-utils==0.36.8

@@ -121,13 +121,17 @@ class Warzone(Cog):
     @tasks.loop(minutes=int(getenv("COD_TRACK_TIME", 10)), reconnect=True)
     async def fetch_track(self):
         """Task for fetching warzone matches of tracked users."""
-        logging.info("Starting tracking...")
+        logging.info("Starting warzone tracking...")
         tracked = session.query(wz_model).filter_by(track=True).all()
 
         if not len(tracked):
             return
 
-        s = self._get_cod_session()
+        try:
+            s = self._get_cod_session()
+        except Exception as e:
+            logging.error("Could not acquire session for warzone tracking")
+            return
 
         embed_color = [Color.gold(), Color.light_grey(), Color.dark_orange(), Color.dark_red()]
 

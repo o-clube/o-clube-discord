@@ -29,7 +29,12 @@ class Birthday(Cog):
 
     @bday.command(name="enable")
     async def enable(self, ctx):
-        """Register your battletag."""
+        """Enable birthday messages on the current channel.
+
+        Note: Only one channel per server, using in another channel will update
+        the channel to be used.
+
+        """
         result = session.query(BDay).filter_by(guild_id=ctx.guild.id).first()
         if result:
             result.channel_id = ctx.channel.id
@@ -40,7 +45,12 @@ class Birthday(Cog):
 
     @bday.command(name="register")
     async def register(self, ctx, bday_date, name=None):
-        """Register a birthday."""
+        """Register a birthday.
+
+        Args:
+            bday_date: Birthday of the member.
+            name: Member tag or nickname. If arg is not informed, the message author will be used.
+        """
         member = ctx.message.author if not name else utils.get(ctx.message.guild.members, name=name)
 
         result = session.query(User).filter_by(member_id=member.id).first()
@@ -59,6 +69,7 @@ class Birthday(Cog):
 
     @tasks.loop(minutes=60, reconnect=True)
     async def happy_bday(self):
+        """Task for birthday celebration."""
         servers = session.query(BDay).filter(or_(BDay.last_notify != func.date(datetime.today()),
                                                  BDay.last_notify == None)).all()
         current_year = datetime.today().year

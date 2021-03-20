@@ -30,7 +30,11 @@ class Warzone(Cog):
 
     @wz.command(name="register")
     async def register(self, ctx, battletag):
-        """Register your battletag."""
+        """Register your battletag.
+
+        Args:
+            battletag: Your Battle.Net battletag.
+        """
         member = ctx.message.author
         result = session.query(wz_model).filter_by(member_id=member.id).first()
         if not result:
@@ -64,7 +68,12 @@ class Warzone(Cog):
 
     @wz.command(name="stats")
     async def stats(self, ctx, battletag=None):
-        """Get your Warzone stats or someone else if you pass a battletag."""
+        """Get your Warzone stats or someone else if you pass a battletag.
+
+        Args:
+            battletag: Battletag used in the stats checking.
+            Will try to use your register battletag if none is informed.
+        """
         member = ctx.message.author
 
         if not battletag:

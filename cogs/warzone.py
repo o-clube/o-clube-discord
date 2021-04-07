@@ -28,9 +28,9 @@ class Warzone(Cog):
         if ctx.invoked_subcommand is None:
             await ctx.reply(f"A subcommand is required. Type `{ctx.prefix}help wz` for help.")
 
-    @wz.command(name="register")
-    async def register(self, ctx, battletag):
-        """Register your battletag.
+    @wz.command(name="add")
+    async def add(self, ctx, battletag):
+        """Add your battletag.
 
         Args:
             battletag: Your Battle.Net battletag.
@@ -41,7 +41,26 @@ class Warzone(Cog):
             session.add(wz_model(member_id=member.id, battletag=battletag))
             session.commit()
             return await ctx.reply(f"{battletag} registered.")
-        return await ctx.reply(f"User already registered with {result.battletag}.")
+
+        result.battletag = battletag
+        session.commit()
+        return await ctx.reply(f"Battle tag updated to {battletag}.")
+
+    @wz.command(name="rm")
+    async def rm(self, ctx, battletag):
+        """Remove your battletag.
+
+        Args:
+            battletag: Your Battle.Net battletag.
+        """
+        member = ctx.message.author
+        result = session.query(wz_model).filter_by(member_id=member.id).first()
+        if result:
+            session.delete(result)
+            session.commit()
+            return await ctx.reply(f"{result.battletag} removed.")
+
+        return await ctx.reply(f"{battletag} not registerd.")
 
     @wz.command(name="track")
     async def track(self, ctx):

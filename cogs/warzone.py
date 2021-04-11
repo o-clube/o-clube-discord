@@ -1,5 +1,6 @@
 """Warzone COG module."""
 
+import inspect
 import logging
 from datetime import datetime, timedelta
 from os import getenv
@@ -12,6 +13,11 @@ from discord.ext.commands import Cog, group
 
 from models import Warzone as wz_model
 from models import session
+
+
+def setup(bot):
+    """COG Setup."""
+    bot.add_cog(Warzone(bot))
 
 
 class Warzone(Cog):
@@ -64,14 +70,40 @@ class Warzone(Cog):
 
     @wz.command(name="track")
     async def track(self, ctx):
-        """Track your Warzone matches."""
+        """Track your Warzone matches.
+
+        Make sure you have data visible in your activision account:
+
+        1. Log In into your account here - https://s.activision.com/activision/login
+
+        2. Enter your profile settings here - https://s.activision.com/activision/profile
+
+        3. Change your privacy options in "Searchable" and "Data Visible" on "ALL".
+
+        4. If it is already set to "ALL" then set it to "None" and change it back to "ALL" so it can properly update
+        """
         member = ctx.message.author
         result = session.query(wz_model).filter_by(member_id=member.id).first()
         if result:
             result.track = True
             result.channel_id = ctx.channel.id
             session.commit()
-            return await ctx.reply(f"Track enabled for {result.battletag}.")
+            return await ctx.reply(
+                inspect.cleandoc(
+                    f"""Track enabled for {result.battletag}.
+                    ```
+                    Make sure you have data visible in your activision account:
+
+                    1. Log In into your account here - https://s.activision.com/activision/login
+
+                    2. Enter your profile settings here - https://s.activision.com/activision/profile
+
+                    3. Change your privacy options in "Searchable" and "Data Visible" on "ALL".
+
+                    4. If it is already set to "ALL" then set it to "None" and change it back to "ALL" so it can properly update```"""
+                )
+            )
+
         return await ctx.reply(f"{ctx.message.author} not registered. Use 'register' first.")
 
     @wz.command(name="untrack")
@@ -162,61 +194,70 @@ class Warzone(Cog):
             return
 
         embed_color = [Color.gold(), Color.light_grey(), Color.dark_orange(), Color.dark_red()]
+        matches = dict()
 
         for t in tracked:
             try:
                 battletag = requests.utils.quote(t.battletag)
+
                 url = f"https://my.callofduty.com/api/papi-client/crm/cod/v2/title/mw/platform/battle/gamer/{battletag}/matches/wz/start/0/end/0/details?limit=1"
 
-                match = s.get(url).json()["data"]["matches"][0]
+                player_match = s.get(url).json()["data"]["matches"][0]
 
                 now = int(datetime.utcnow().strftime("%s"))
 
-                if t.last_match == match["matchID"] or now - match["utcEndSeconds"] > 30 * 60:
+                if t.last_match == player_match["matchID"] or now - player_match["utcEndSeconds"] > 30 * 60:
                     continue
 
-                t.last_match = match["matchID"]
-
-                channel = self.bot.get_channel(t.channel_id)
-                member = self.bot.get_user(t.member_id)
-
-                ordinal = lambda n: f'{n}{"tsnrhtdd"[(n//10%10!=1)*(n%10<4)*n%10::4]}'
-
-                placement = int(match["playerStats"]["teamPlacement"])
-                placement_color = placement - 1 if placement < 4 else -1
-
-                embed = Embed(
-                    title=f"{member.name}'s team finished in __{ordinal(placement)}__ against {match['teamCount']} teams.",
-                    color=embed_color[placement_color],
-                )
-
-                embed.add_field(name="Match duration", value=f"{int(match['duration'] // 60000)} minutes", inline=True)
-                embed.add_field(
-                    name="Team survived",
-                    value=f"{int(match['playerStats']['teamSurvivalTime']) // 60000} minutes",
-                    inline=True,
-                )
-                embed.add_field(name=chr(173), value=chr(173), inline=True)  # field skip
-
-                embed.add_field(name="KDR", value=round(match["playerStats"]["kdRatio"], 2), inline=True)
-                embed.add_field(name="Kills", value=int(match["playerStats"]["kills"]), inline=True)
-                embed.add_field(name="Deaths", value=int(match["playerStats"]["deaths"]), inline=True)
-
-                embed.add_field(name="Damage done", value=int(match["playerStats"]["damageDone"]), inline=True)
-                embed.add_field(name="Damage taken", value=int(match["playerStats"]["damageTaken"]), inline=True)
-                embed.add_field(name=chr(173), value=chr(173), inline=True)  # field skip
-                started = datetime.fromtimestamp(match["utcStartSeconds"], pytz.timezone("America/Sao_Paulo")).strftime(
-                    "%Y-%m-%d %H:%M:%S"
-                )
-                ended = datetime.fromtimestamp(match["utcEndSeconds"], pytz.timezone("America/Sao_Paulo")).strftime(
-                    "%Y-%m-%d %H:%M:%S"
-                )
-                embed.set_footer(text=f"Started at: {started}\nEnded at: {ended}")
-                await channel.send(embed=embed)
+                matches.setdefault(player_match["matchID"], dict()).setdefault(
+                    player_match["player"]["team"], list()
+                ).append((t, player_match))
+                t.last_match = player_match["matchID"]
 
             except Exception as e:
                 logging.exception(e)
 
+        for match in matches.values():
+            for team in match.values():
+                p0 = team[0][1]
+                channel = self.bot.get_channel(team[0][0].channel_id)
+                member = self.bot.get_user(team[0][0].channel_id)
+
+                ordinal = lambda n: f'{n}{"tsnrhtdd"[(n//10%10!=1)*(n%10<4)*n%10::4]}'
+
+                placement = int(p0["playerStats"]["teamPlacement"])
+                placement_color = placement - 1 if placement < 4 else -1
+
+                embed = Embed(
+                    title=f"{p0['player']['username']}'s team finished in __{ordinal(placement)}__ against {p0['teamCount']} teams.",
+                    color=embed_color[placement_color],
+                )
+
+                embed.add_field(
+                    name="Match duration", value=f"{int(p0['duration'] // 60000)} minutes", inline=True
+                )
+                embed.add_field(
+                    name="Team survived",
+                    value=f"{int(p0['playerStats']['teamSurvivalTime']) // 60000} minutes",
+                    inline=True,
+                )
+                embed.add_field(name=chr(173), value=chr(173), inline=True)  # field skip
+                for _, player in team:
+                    stats = f"""**KDA:** {round(player["playerStats"]["kdRatio"], 2)}
+                    **Kills:** {int(player["playerStats"]["kills"])} **Deaths:** {int(player["playerStats"]["deaths"])}
+                    **Damage Done:** {int(player["playerStats"]["damageDone"])}
+                    """
+                    embed.add_field(name=player["player"]["username"], value=inspect.cleandoc(stats), inline=True)
+
+                started = datetime.fromtimestamp(
+                    player["utcStartSeconds"], pytz.timezone("America/Sao_Paulo")
+                ).strftime("%Y-%m-%d %H:%M:%S")
+                ended = datetime.fromtimestamp(
+                    player["utcEndSeconds"], pytz.timezone("America/Sao_Paulo")
+                ).strftime("%Y-%m-%d %H:%M:%S")
+                embed.set_footer(text=f"Started at: {started}\nEnded at: {ended}")
+
+                await channel.send(embed=embed)
         session.commit()
 
     @fetch_track.before_loop
@@ -240,8 +281,3 @@ class Warzone(Cog):
         s.post("https://profile.callofduty.com/do_login?new_SiteId=cod", params=params, allow_redirects=False)
 
         return s
-
-
-def setup(bot):
-    """COG Setup."""
-    bot.add_cog(Warzone(bot))

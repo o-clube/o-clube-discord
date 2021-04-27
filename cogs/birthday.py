@@ -7,7 +7,7 @@ from discord import Color, Embed, utils
 from discord.ext import tasks
 from discord.ext.commands import Cog, group
 from sqlalchemy import extract, or_, func
-
+from psycopg2 import OperationalError
 from models import BDay, User, session
 
 
@@ -19,8 +19,10 @@ def setup(bot):
 class Birthday(Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.happy_bday.add_exception_type(OperationalError)
         self.happy_bday.start()
         self.inflect = inflect.engine()
+
     @group(name="bday", pass_context=True)
     async def bday(self, ctx):
         """Birthday wishing"""
@@ -33,7 +35,6 @@ class Birthday(Cog):
 
         Note: Only one channel per server, using in another channel will update
         the channel to be used.
-
         """
         result = session.query(BDay).filter_by(guild_id=ctx.guild.id).first()
         if result:
@@ -43,15 +44,30 @@ class Birthday(Cog):
         session.commit()
         return await ctx.reply(f"Birthday notification channel birthday enabled to {ctx.channel.mention}.")
 
-    @bday.command(name="register")
-    async def register(self, ctx, bday_date, name=None):
-        """Register a birthday.
+    @bday.command(name="disable")
+    async def disable(self, ctx):
+        """Disable birthday messages on the current channel."""
+        result = session.query(BDay).filter_by(guild_id=ctx.guild.id).first()
+        if result:
+            session.remove(result)
+            session.commit()
+            return await ctx.reply(f"Birthday notification disabled.")
+        return await ctx.reply(f"Birthday isn't enabled.")
+
+    @bday.command(name="add")
+    async def add(self, ctx, bday_date, name=None):
+        """Add a birthday.
 
         Args:
-            bday_date: Birthday of the member.
+            bday_date: Birthday of the member (dd/mm/yyyy).
             name: Member tag or nickname. If arg is not informed, the message author will be used.
         """
-        member = ctx.message.author if not name else utils.get(ctx.message.guild.members, name=name)
+        a = ctx.message.author
+        member = (
+            ctx.message.author
+            if not name
+            else utils.find(lambda m: m.name == name or m.nick == name or m.mention == name, ctx.message.guild.members)
+        )
 
         result = session.query(User).filter_by(member_id=member.id).first()
         if not result:
@@ -64,14 +80,37 @@ class Birthday(Cog):
                 )
             )
             session.commit()
-            return await ctx.reply(f"{member.name} birthday registered.")
+            return await ctx.reply(f"{member.nick} birthday registered.")
         return await ctx.reply(f"User already registered with {result.date} as birthday.")
+
+    @bday.command(name="rm")
+    async def rm(self, ctx, name=None):
+        """Remove a birthday.
+
+        Args:
+            name: Member tag or nickname. If arg is not informed, the message author will be used.
+        """
+        member = (
+            ctx.message.author
+            if not name
+            else utils.find(lambda m: m.name == name or m.nick == name or m.mention == name, ctx.message.guild.members)
+        )
+
+        result = session.query(User).filter_by(member_id=member.id).first()
+        if result:
+            session.remove(result)
+            session.commit()
+            return await ctx.reply(f"{member.nick} birthday removed.")
+        return await ctx.reply(f"{name} birthday is not registered.")
 
     @tasks.loop(minutes=60, reconnect=True)
     async def happy_bday(self):
         """Task for birthday celebration."""
-        servers = session.query(BDay).filter(or_(BDay.last_notify != func.date(datetime.today()),
-                                                 BDay.last_notify == None)).all()
+        servers = (
+            session.query(BDay)
+            .filter(or_(BDay.last_notify != func.date(datetime.today()), BDay.last_notify == None))
+            .all()
+        )
         current_year = datetime.today().year
         for s in servers:
             users = (
@@ -100,6 +139,6 @@ class Birthday(Cog):
                 session.commit()
 
     @happy_bday.before_loop
-    async def before_fetch_track(self):
-        """Fetch task needs to wait to the bot to be ready."""
+    async def before_bday_loop(self):
+        """BDay needs to wait to the bot to be ready."""
         await self.bot.wait_until_ready()

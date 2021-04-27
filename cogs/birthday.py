@@ -81,7 +81,7 @@ class Birthday(Cog):
             )
             session.commit()
             return await ctx.reply(f"{member.nick} birthday registered.")
-        return await ctx.reply(f"User already registered with {result.date} as birthday.")
+        return await ctx.reply(f"User already registered with {result.birthday} as birthday.")
 
     @bday.command(name="rm")
     async def rm(self, ctx, name=None):

@@ -49,7 +49,7 @@ class Birthday(Cog):
         """Disable birthday messages on the current channel."""
         result = session.query(BDay).filter_by(guild_id=ctx.guild.id).first()
         if result:
-            session.remove(result)
+            session.delete(result)
             session.commit()
             return await ctx.reply(f"Birthday notification disabled.")
         return await ctx.reply(f"Birthday isn't enabled.")
@@ -98,7 +98,7 @@ class Birthday(Cog):
 
         result = session.query(User).filter_by(member_id=member.id).first()
         if result:
-            session.remove(result)
+            session.delete(result)
             session.commit()
             return await ctx.reply(f"{member.nick} birthday removed.")
         return await ctx.reply(f"{name} birthday is not registered.")

@@ -1,7 +1,7 @@
 build:
   docker:
-    bot: Dockerfile
+    worker: Dockerfile
 
 run:
   worker:
-    image: bot
+    image: worker

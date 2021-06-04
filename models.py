@@ -3,7 +3,7 @@ from os import getenv
 from sqlalchemy import BigInteger, Boolean, Column, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.sql.sqltypes import Boolean, Date
+from sqlalchemy.sql.sqltypes import Boolean, Date, DateTime
 
 Base = declarative_base()
 
@@ -34,6 +34,19 @@ class BDay(Base):
     guild_id = Column(BigInteger, primary_key=True)
     channel_id = Column(BigInteger, default=None)
     last_notify = Column(Date, nullable=True)
+
+class Correios(Base):
+    __tablename__ = "correios"
+    guild_id = Column(BigInteger, primary_key=True)
+    channel_id = Column(BigInteger, default=None)
+    last_notify = Column(Date, nullable=True)
+
+class Package(Base):
+    __tablename__ = "package"
+    id = Column(String, primary_key=True)
+    guild_id = Column(BigInteger, primary_key=True)
+    user_id = Column(BigInteger, nullable=False)
+    last_update = Column(DateTime)
 
 
 Base.metadata.create_all(engine)

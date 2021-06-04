@@ -1,5 +1,6 @@
 # https://discord.com/api/oauth2/authorize?client_id=817794806738059334&permissions=2416143440&scope=bot
 import logging
+import os
 import traceback
 
 from os import listdir
@@ -7,6 +8,8 @@ from os.path import isfile, join
 
 from discord import Intents
 from discord.ext import commands
+
+from logger import DiscordHandler
 
 logging.basicConfig(level=logging.INFO)
 
@@ -30,3 +33,22 @@ def create_bot(command_prefix: str = ">"):
 
 
 bot = create_bot()
+
+@bot.event
+async def on_ready():
+    try:
+        handler = DiscordHandler(bot, int(os.getenv("LOG_CHANNEL")))
+        handler.setLevel(logging.WARNING)
+        fmt = logging.Formatter('**[%(asctime)s] %(pathname)s:%(lineno)d**: %(message)s', "%Y-%m-%d %H:%M:%S")
+        handler.setFormatter(fmt)
+        logger = logging.getLogger()
+        logger.addHandler(handler)
+
+    except:
+        logging.error("Error registering DiscordHandler.")
+
+    logging.basicConfig(level=logging.DEBUG if __debug__ else logging.INFO,
+    format="[%(asctime)s] %(levelname)s in %(module)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S")
+
+    logging.warning("O Clube Discord Bot has been started.")

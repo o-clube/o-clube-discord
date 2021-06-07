@@ -1,31 +1,43 @@
 import os
 
+import aiohttp
+import asyncio
+
 from logging import StreamHandler
 
-from discord import Embed, Color
+from discord import AsyncWebhookAdapter, Color, Embed, Color, Webhook
+
 
 class DiscordHandler(StreamHandler):
-    def __init__(self, bot, channel_id):
-        self.bot = bot
-        self.level_color = {"INFO": Color.light_grey(),
-                            "WARNING": Color.gold(),
-                            "ERROR": Color.dark_red(),
-                            "CRITICAL": Color.red(),
-                            "DEBUG": Color.dark_green(),
-                            "NOTSET": Color.dark_grey()
-                            }
-        self.channel_id = channel_id
+    def __init__(self, webhook):
+        self.webhook = webhook
+        self.level_color = {
+            "INFO": Color.light_grey(),
+            "WARNING": Color.gold(),
+            "ERROR": Color.dark_red(),
+            "CRITICAL": Color.red(),
+            "DEBUG": Color.dark_green(),
+            "NOTSET": Color.dark_grey(),
+        }
         super(DiscordHandler, self).__init__()
 
     def emit(self, record):
+        asyncio.create_task(self.emitting(record))
 
-        channel = self.bot.get_channel(self.channel_id)
-        record.pathname = record.pathname.replace(os.getcwd(), "")[1:]
+    async def emitting(self, record):
 
-        description = self.format(record)
+        async with aiohttp.ClientSession() as session:
+            webhook = Webhook.from_url(self.webhook, adapter=AsyncWebhookAdapter(session))
 
-        for y in range(2000, len(description)+2000,2000):
-            embed = Embed(color=self.level_color[record.levelname],
-                        description=description[y-2000:y])
+            record.pathname = record.pathname.replace(os.getcwd(), "")[1:]
 
-            self.bot.loop.create_task(channel.send(embed=embed))
+            description = self.format(record)
+
+            for y in range(2000, len(description) + 2000, 2000):
+                embed = Embed(color=self.level_color[record.levelname], description=description[y - 2000 : y])
+
+                await webhook.send(
+                    embed=embed,
+                    username="O Clube",
+                    avatar_url="https://cdn.discordapp.com/avatars/326107366275940362/1cc62dd7b583a7d7fa6b7698fd280404",
+                )

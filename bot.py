@@ -39,7 +39,7 @@ bot = create_bot()
 @bot.event
 async def on_ready():
     try:
-        handler = DiscordHandler(bot, int(os.getenv("LOG_CHANNEL")))
+        handler = DiscordHandler(os.getenv("LOG_WEBHOOK"))
         handler.setLevel(logging.WARNING)
         fmt = logging.Formatter('**[%(asctime)s] %(pathname)s:%(lineno)d**: %(message)s', "%Y-%m-%d %H:%M:%S")
         handler.setFormatter(fmt)

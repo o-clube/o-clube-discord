@@ -17,11 +17,29 @@ class Correios(Cog):
         self.bot = bot
         self.fetch_track.start()
         # self.fetch_track.add_exception_type(Exception)
-        
+
     @group(name="correios", pass_context=True)
-    async def correios(self, ctx):
-        """Correios tracking"""
+    async def correios(self, ctx, cod = None):
+        """Correios tracking
+
+        Args:
+            cod: Correios tracking number.
+        """
         if ctx.invoked_subcommand is None:
+            if cod:
+                result = await self.bot.loop.run_in_executor(None, correios, cod)
+                if len(result):
+                    resp_msg = "```diff"
+                    for status in result:
+                        resp_msg += f"\n+ {status['data']} - {status['hora']}  -  {status['local']} \n- {status['mensagem']} \n"
+
+                    resp_msg += "```"
+
+                    logging.info(f"Successfully added tracking for package {cod}.")
+                    return await ctx.reply(f"{resp_msg}")
+
+                return await ctx.reply(f"Objeto não encontra ou ainda não postado.")
+
             await ctx.reply(f"A subcommand is required. Type `{ctx.prefix}help correios` for help.")
 
     @correios.command(name="enable")
@@ -49,30 +67,10 @@ class Correios(Cog):
             return await ctx.reply(f"Correios notification disabled.")
         return await ctx.reply(f"Correios isn't enabled.")
 
-    @correios.command(name="status")
-    async def status(self, ctx, cod):
-        """Return package status on the current channel.
-
-        Args: 
-            cod: Correios tracking code
-        """
-        result = correios(cod)
-        if len(result): 
-            resp_msg = "```diff"
-            for status in result:
-                resp_msg += f"\n+ {status['data']} - {status['hora']}  -  {status['local']} \n- {status['mensagem']} \n" 
-
-            resp_msg += "```"
-
-            logging.info(f"Successfully added tracking for package {cod}.")
-            return await ctx.reply(f"{resp_msg}")
-
-        return await ctx.reply(f"Objeto não encontra ou ainda não postado.")
-
     @correios.command(name="track")
     async def track(self, ctx, cod, name = None):
         """Register a track to a correios package
-        
+
         Args:
             cod: Correios tracking code
             name: Discord @name
@@ -86,7 +84,7 @@ class Correios(Cog):
         result = session.query(Package).filter_by(id=cod).first()
 
         if not result:
-            res = correios(cod)
+            res = await self.bot.loop.run_in_executor(None, correios, cod)
             if len(res):
                 session.add(Package(
                     id = cod,
@@ -96,7 +94,7 @@ class Correios(Cog):
                 session.commit()
                 logging.info(f"Successfully added tracking for package {cod}.")
                 return await ctx.reply(f"Objeto cadastrado com sucesso.")
-            
+
             logging.info(f"Package {cod} not found in database.")
             return await ctx.reply(f"Não encontramos esse objeto.")
 
@@ -106,7 +104,7 @@ class Correios(Cog):
     @correios.command(name="untrack")
     async def untrack(self, ctx, cod):
         """Disable a track to a correios package
-        
+
         Args:
             cod: Correios tracking code
         """
@@ -131,7 +129,7 @@ class Correios(Cog):
             channel = self.bot.get_channel(server.channel_id)
             for res in results:
                 cod = res.id
-                package = correios(cod)
+                package = await self.bot.loop.run_in_executor(None, correios, cod)
                 logging.info(f"Fetching data from correios, package: {cod}.")
                 package_datetime = datetime.strptime(f"{package[0]['data']} {package[0]['hora']}", "%d/%m/%Y %H:%M")
                 if not res.last_update or package_datetime != res.last_update:
@@ -139,8 +137,8 @@ class Correios(Cog):
                     session.commit()
                     resp_msg = f"```diff\n+ ORDER: {cod}"
                     for status in package:
-                        resp_msg += f"\n+ {status['data']} - {status['hora']} - {status['local']}\n- {status['mensagem']}\n" 
-                    
+                        resp_msg += f"\n+ {status['data']} - {status['hora']} - {status['local']}\n- {status['mensagem']}\n"
+
                     resp_msg += "```"
                     user = self.bot.get_user(res.user_id)
                     logging.info(f"Sending message to user: {user.display_name} package: {cod}.")
@@ -150,9 +148,9 @@ class Correios(Cog):
                     logging.info(f"Deleting package {cod}, package already delivered.")
                     session.delete(res)
                     session.commit()
-                
-                    
-                    
+
+
+
     @fetch_track.before_loop
     async def before_fetch_track(self):
         """Fetch task needs to wait to the bot to be ready."""

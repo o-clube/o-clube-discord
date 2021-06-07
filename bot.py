@@ -11,7 +11,9 @@ from discord.ext import commands
 
 from logger import DiscordHandler
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG if __debug__ else logging.INFO,
+    format="[%(asctime)s] %(pathname)s in %(module)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S")
 
 def load_extensions(bot: commands.Bot, cogs_dir: str = "cogs"):
     for extension in [f.replace(".py", "") for f in listdir(cogs_dir) if isfile(join(cogs_dir, f))]:
@@ -44,11 +46,7 @@ async def on_ready():
         logger = logging.getLogger()
         logger.addHandler(handler)
 
-    except:
-        logging.error("Error registering DiscordHandler.")
-
-    logging.basicConfig(level=logging.DEBUG if __debug__ else logging.INFO,
-    format="[%(asctime)s] %(levelname)s in %(module)s: %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S")
+    except Exception as e:
+        logging.error("Error registering DiscordHandler.", exc_info=e)
 
     logging.warning("O Clube Discord Bot has been started.")

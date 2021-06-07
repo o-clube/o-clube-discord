@@ -21,6 +21,11 @@ class DiscordHandler(StreamHandler):
 
         channel = self.bot.get_channel(self.channel_id)
         record.pathname = record.pathname.replace(os.getcwd(), "")[1:]
-        embed = Embed(color=self.level_color[record.levelname],
-                      description=self.format(record))
-        self.bot.loop.create_task(channel.send(embed=embed))
+
+        description = self.format(record)
+
+        for y in range(2000, len(description)+2000,2000):
+            embed = Embed(color=self.level_color[record.levelname],
+                        description=description[y-2000:y])
+
+            self.bot.loop.create_task(channel.send(embed=embed))

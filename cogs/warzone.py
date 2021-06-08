@@ -238,7 +238,7 @@ class Warzone(Cog):
                     t.last_match = player_match["matchID"]
 
                 except Exception as e:
-                    logging.exception(e)
+                    logging.error(f"Could not retrieve warzone history for {t.battletag}", exc_info=e)
 
         for match in matches.values():
             for team in match.values():

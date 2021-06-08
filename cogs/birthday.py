@@ -62,11 +62,10 @@ class Birthday(Cog):
             bday_date: Birthday of the member (dd/mm/yyyy).
             name: Member tag or nickname. If arg is not informed, the message author will be used.
         """
-        a = ctx.message.author
         member = (
             ctx.message.author
             if not name
-            else utils.find(lambda m: m.name == name or m.nick == name or m.mention == name, ctx.message.guild.members)
+            else utils.find(lambda m: m.name == name or m.nick == name or str(m.id) in name, ctx.message.guild.members)
         )
 
         result = session.query(User).filter_by(member_id=member.id).first()

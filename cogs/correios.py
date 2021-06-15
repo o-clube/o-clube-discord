@@ -19,13 +19,14 @@ class Correios(Cog):
         # self.fetch_track.add_exception_type(Exception)
 
     @group(name="correios", pass_context=True)
-    async def correios(self, ctx, cod = None):
+    async def correios(self, ctx):
         """Correios tracking
 
         Args:
             cod: Correios tracking number.
         """
         if ctx.invoked_subcommand is None:
+            cod = ctx.subcommand_passed
             if cod:
                 result = await self.bot.loop.run_in_executor(None, correios, cod)
                 if len(result):
@@ -38,7 +39,7 @@ class Correios(Cog):
                     logging.info(f"Successfully added tracking for package {cod}.")
                     return await ctx.reply(f"{resp_msg}")
 
-                return await ctx.reply(f"Objeto não encontra ou ainda não postado.")
+                return await ctx.reply(f"Objeto não encontrado ou ainda não postado.")
 
             await ctx.reply(f"A subcommand is required. Type `{ctx.prefix}help correios` for help.")
 

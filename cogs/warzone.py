@@ -5,8 +5,10 @@ import logging
 from datetime import datetime, timedelta
 from os import getenv
 
+import aiohttp
 import pytz
 import requests
+
 from discord import Color, Embed
 from discord.ext import tasks
 from discord.ext.commands import Cog, group
@@ -187,41 +189,62 @@ class Warzone(Cog):
         if not len(tracked):
             return
 
-        try:
-            s = self._get_cod_session()
-        except Exception as e:
-            logging.error("Could not acquire session for warzone tracking")
-            return
-
         embed_color = [Color.gold(), Color.light_grey(), Color.dark_orange(), Color.dark_red()]
+
         matches = dict()
 
-        for t in tracked:
+        async with aiohttp.ClientSession() as aiosession:
             try:
-                battletag = requests.utils.quote(t.battletag)
+                await aiosession.get("https://profile.callofduty.com/cod/login")
 
-                url = f"https://my.callofduty.com/api/papi-client/crm/cod/v2/title/mw/platform/battle/gamer/{battletag}/matches/wz/start/0/end/0/details?limit=1"
+                cookies = aiosession.cookie_jar.filter_cookies("https://callofduty.com")
 
-                player_match = s.get(url).json()["data"]["matches"][0]
+                params = {
+                    "username": getenv("COD_USERNAME"),
+                    "password": getenv("COD_PASSWORD"),
+                    "remember_me": "true",
+                    "_csrf": cookies["XSRF-TOKEN"].value,
+                }
 
-                now = int(datetime.utcnow().strftime("%s"))
-
-                if t.last_match == player_match["matchID"] or now - player_match["utcEndSeconds"] > 30 * 60:
-                    continue
-
-                matches.setdefault(player_match["matchID"], dict()).setdefault(
-                    player_match["player"]["team"], list()
-                ).append((t, player_match))
-                t.last_match = player_match["matchID"]
+                await aiosession.post(
+                    "https://profile.callofduty.com/do_login?new_SiteId=cod", params=params, allow_redirects=False
+                )
 
             except Exception as e:
-                logging.exception(e)
+                logging.error("Could not acquire session for warzone tracking")
+                return
+
+            for t in tracked:
+                try:
+                    battletag = requests.utils.quote(t.battletag)
+
+                    url = f"https://my.callofduty.com/api/papi-client/crm/cod/v2/title/mw/platform/battle/gamer/{battletag}/matches/wz/start/0/end/0/details?limit=1"
+
+                    async with aiosession.get(url) as resp:
+                        response = await resp.json()
+
+                    player_match = response["data"]["matches"][0]
+                    player_match["channel_id"] = t.channel_id
+
+                    now = int(datetime.utcnow().strftime("%s"))
+
+                    if t.last_match == player_match["matchID"] or now - player_match["utcEndSeconds"] > 30 * 60:
+                        continue
+
+                    matches.setdefault(player_match["matchID"], dict()).setdefault(
+                        player_match["player"]["team"], list()
+                    ).append(player_match)
+
+                    t.last_match = player_match["matchID"]
+
+                except Exception as e:
+                    logging.exception(e)
 
         for match in matches.values():
             for team in match.values():
-                p0 = team[0][1]
-                channel = self.bot.get_channel(team[0][0].channel_id)
-                member = self.bot.get_user(team[0][0].channel_id)
+                p0 = team[0]
+
+                channel = self.bot.get_channel(p0["channel_id"])
 
                 ordinal = lambda n: f'{n}{"tsnrhtdd"[(n//10%10!=1)*(n%10<4)*n%10::4]}'
 
@@ -231,31 +254,23 @@ class Warzone(Cog):
                 embed = Embed(
                     title=f"{p0['player']['username']}'s team finished in __{ordinal(placement)}__ against {p0['teamCount']} teams.",
                     color=embed_color[placement_color],
+                    timestamp=datetime.fromtimestamp(p0["utcStartSeconds"]),
                 )
 
-                embed.add_field(
-                    name="Match duration", value=f"{int(p0['duration'] // 60000)} minutes", inline=True
-                )
+                embed.add_field(name="Match duration", value=f"{int(p0['duration'] // 60000)} minutes", inline=True)
                 embed.add_field(
                     name="Team survived",
                     value=f"{int(p0['playerStats']['teamSurvivalTime']) // 60000} minutes",
                     inline=True,
                 )
                 embed.add_field(name=chr(173), value=chr(173), inline=True)  # field skip
-                for _, player in team:
+
+                for player in team:
                     stats = f"""**KDA:** {round(player["playerStats"]["kdRatio"], 2)}
                     **Kills:** {int(player["playerStats"]["kills"])} **Deaths:** {int(player["playerStats"]["deaths"])}
-                    **Damage Done:** {int(player["playerStats"]["damageDone"])}
+                    **Damage:** {int(player["playerStats"]["damageDone"])}
                     """
                     embed.add_field(name=player["player"]["username"], value=inspect.cleandoc(stats), inline=True)
-
-                started = datetime.fromtimestamp(
-                    player["utcStartSeconds"], pytz.timezone("America/Sao_Paulo")
-                ).strftime("%Y-%m-%d %H:%M:%S")
-                ended = datetime.fromtimestamp(
-                    player["utcEndSeconds"], pytz.timezone("America/Sao_Paulo")
-                ).strftime("%Y-%m-%d %H:%M:%S")
-                embed.set_footer(text=f"Started at: {started}\nEnded at: {ended}")
 
                 await channel.send(embed=embed)
         session.commit()
@@ -264,20 +279,3 @@ class Warzone(Cog):
     async def before_fetch_track(self):
         """Fetch task needs to wait to the bot to be ready."""
         await self.bot.wait_until_ready()
-
-    def _get_cod_session(self) -> requests.Session:
-        """Get session on callofduty website."""
-        s = requests.Session()
-
-        response = s.get("https://profile.callofduty.com/cod/login")
-
-        params = {
-            "username": getenv("COD_USERNAME"),
-            "password": getenv("COD_PASSWORD"),
-            "remember_me": "true",
-            "_csrf": response.cookies["XSRF-TOKEN"],
-        }
-
-        s.post("https://profile.callofduty.com/do_login?new_SiteId=cod", params=params, allow_redirects=False)
-
-        return s

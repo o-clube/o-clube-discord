@@ -16,7 +16,7 @@ class Correios(Cog):
     def __init__(self, bot):
         self.bot = bot
         self.fetch_track.start()
-        # self.fetch_track.add_exception_type(Exception)
+        self.fetch_track.add_exception_type(Exception)
 
     @group(name="correios", pass_context=True)
     async def correios(self, ctx):
@@ -28,7 +28,7 @@ class Correios(Cog):
         if ctx.invoked_subcommand is None:
             cod = ctx.subcommand_passed
             if cod:
-                result = await self.bot.loop.run_in_executor(None, correios, cod)
+                result = correios(cod)
                 if len(result):
                     resp_msg = "```diff"
                     for status in result:
@@ -85,7 +85,7 @@ class Correios(Cog):
         result = session.query(Package).filter_by(id=cod).first()
 
         if not result:
-            res = await self.bot.loop.run_in_executor(None, correios, cod)
+            res = correios(cod)
             if len(res):
                 session.add(Package(
                     id = cod,
@@ -128,7 +128,7 @@ class Correios(Cog):
             channel = self.bot.get_channel(server.channel_id)
             for res in results:
                 cod = res.id
-                package = await self.bot.loop.run_in_executor(None, correios, cod)
+                package = correios(cod)
                 logging.info(f"Fetching data from correios, package: {cod}.")
                 package_datetime = datetime.strptime(f"{package[0]['data']} {package[0]['hora']}", "%d/%m/%Y %H:%M")
                 if not res.last_update or package_datetime != res.last_update:

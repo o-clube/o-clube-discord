@@ -2,10 +2,11 @@ import os
 
 import aiohttp
 import asyncio
-
+import logging
 from logging import StreamHandler
 
 from discord import AsyncWebhookAdapter, Color, Embed, Color, Webhook
+import discord
 
 
 class DiscordHandler(StreamHandler):
@@ -34,10 +35,14 @@ class DiscordHandler(StreamHandler):
             description = self.format(record)
 
             for y in range(2000, len(description) + 2000, 2000):
-                embed = Embed(color=self.level_color[record.levelname], description=description[y - 2000 : y])
+                try:
+                    embed = Embed(color=self.level_color[record.levelname], description=description[y - 2000 : y])
 
-                await webhook.send(
-                    embed=embed,
-                    username="O Clube",
-                    avatar_url="https://cdn.discordapp.com/avatars/326107366275940362/1cc62dd7b583a7d7fa6b7698fd280404",
-                )
+                    await webhook.send(
+                        embed=embed,
+                        username="O Clube",
+                        avatar_url="https://cdn.discordapp.com/avatars/326107366275940362/1cc62dd7b583a7d7fa6b7698fd280404",
+                    )
+                except discord.errors.HTTPException as e:
+                    logger = logging.getLogger('discord')
+                    logger.critical("Error sending log to discord webhook.", exc_info=e)

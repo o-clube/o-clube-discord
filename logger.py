@@ -34,6 +34,8 @@ class DiscordHandler(StreamHandler):
 
             description = self.format(record)
 
+            await asyncio.sleep(0.5)
+
             for y in range(2000, len(description) + 2000, 2000):
                 try:
                     embed = Embed(color=self.level_color[record.levelname], description=description[y - 2000 : y])

@@ -11,9 +11,8 @@ from discord.ext import commands
 
 from logger import DiscordHandler
 
-logging.basicConfig(level=logging.DEBUG if __debug__ else logging.WARN,
-    format="[%(asctime)s] %(pathname)s in %(module)s: %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S")
+logging.basicConfig(format="[%(asctime)s] <%(levelname)s> %(pathname)s in %(module)s: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+
 
 def load_extensions(bot: commands.Bot, cogs_dir: str = "cogs"):
     for extension in [f.replace(".py", "") for f in listdir(cogs_dir) if isfile(join(cogs_dir, f))]:
@@ -35,12 +34,13 @@ def create_bot(command_prefix: str = ">"):
 
 bot = create_bot()
 
+
 @bot.event
 async def on_ready():
     try:
         handler = DiscordHandler(os.getenv("LOG_WEBHOOK"))
         handler.setLevel(logging.WARNING)
-        fmt = logging.Formatter('**[%(asctime)s] %(pathname)s:%(lineno)d**: %(message)s', "%Y-%m-%d %H:%M:%S")
+        fmt = logging.Formatter("**[%(asctime)s] %(pathname)s:%(lineno)d**: %(message)s", "%Y-%m-%d %H:%M:%S")
         handler.setFormatter(fmt)
         logger = logging.getLogger()
         logger.addHandler(handler)

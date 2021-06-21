@@ -124,7 +124,7 @@ class Correios(Cog):
     @tasks.loop(minutes=30, reconnect=True)
     async def fetch_track(self):
         """Task for fetching correios packages of tracked users."""
-        logging.info("Starting correios tracking...")
+        logging.info("Starting correios tracking.")
         servers = session.query(correios_model).all()
 
         for server in servers:
@@ -147,13 +147,14 @@ class Correios(Cog):
                             user = self.bot.get_user(res.user_id)
                             logging.info(f"Sending message to user: {user.display_name} package: {cod}.")
                             await channel.send(f"{user.mention}\n{resp_msg}")
-                            # lambda m: m.name == name or m.nick == name or m.mention == name, ctx.message.guild.members
+
                         if package[0]["mensagem"] == "Objeto entregue ao destinatário":
                             logging.info(f"Deleting package {cod}, package already delivered.")
                             session.delete(res)
                             session.commit()
                     except Exception as e:
                         logging.error(f"The following error occured while processing package: {cod}", exc_info=e)
+        logging.info("Correios tracking finished.")
 
     async def get_correios(self, tracking_code):
         headers = {'Referer': 'https://www2.correios.com.br/sistemas/rastreamento/'}  # noqa

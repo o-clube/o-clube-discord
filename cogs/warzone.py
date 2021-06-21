@@ -274,6 +274,7 @@ class Warzone(Cog):
 
                 await channel.send(embed=embed)
         session.commit()
+        logging.info("Warzone tracking finished.")
 
     @fetch_track.before_loop
     async def before_fetch_track(self):

@@ -11,7 +11,12 @@ from discord.ext import commands
 
 from logger import DiscordHandler
 
-logging.basicConfig(format="[%(asctime)s] <%(levelname)s> %(pathname)s in %(module)s: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(asctime)s] <%(levelname)s> %(pathname)s in %(module)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logging.getLogger("discord").setLevel(logging.WARN)
 
 
 def load_extensions(bot: commands.Bot, cogs_dir: str = "cogs"):

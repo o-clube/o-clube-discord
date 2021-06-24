@@ -73,22 +73,15 @@ class Correios(Cog):
         return await ctx.reply(f"Correios isn't enabled.")
 
     @correios.command(name="track")
-    async def track(self, ctx, cod, *, label):
+    async def track(self, ctx, cod, *, tag = ""):
         """Register a track to a correios package
 
         Args:
             cod: Correios tracking code
-            name: Discord @name
+            tag (optional): Tag to identify your package. Defaults to ""
         """
         member = ctx.message.author
             
-
-        tag = (
-            label
-            if label
-            else ""
-        )
-
         result = session.query(Package).filter_by(id=cod).first()
 
         if not result:

@@ -73,7 +73,7 @@ class Correios(Cog):
         return await ctx.reply(f"Correios isn't enabled.")
 
     @correios.command(name="track")
-    async def track(self, ctx, cod, *label):
+    async def track(self, ctx, cod, *, label):
         """Register a track to a correios package
 
         Args:
@@ -84,8 +84,8 @@ class Correios(Cog):
             
 
         tag = (
-            ' '.join(map(str, label))
-            if len(label) > 0
+            label
+            if label
             else ""
         )
 
@@ -148,13 +148,13 @@ class Correios(Cog):
 
                             resp_msg += "```"
                             user = self.bot.get_user(res.user_id)
-                            logging.info(f"Sending message to user: {user.display_name} tag: {res.tag} package: {cod}.")
+                            
+                            logging.info(f"Sending message to user: {user.display_name} package: {cod}.")
                             
                             if res.latest_message_id:
                                 await channel.delete_messages([discord.Object(res.latest_message_id)])
 
                             message = await channel.send(f"{user.mention} {res.tag} \n{resp_msg}")
-                            logging.info(f"message{message}")
                             res.latest_message_id = message.id
                             session.commit()
 

@@ -46,6 +46,8 @@ class Package(Base):
     id = Column(String, primary_key=True)
     guild_id = Column(BigInteger, primary_key=True)
     user_id = Column(BigInteger, nullable=False)
+    tag = Column(String)
+    latest_message_id = Column(BigInteger)
     last_update = Column(DateTime)
 
 

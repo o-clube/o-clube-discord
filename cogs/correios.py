@@ -1,7 +1,7 @@
 
+import discord
 from discord.ext.commands import Cog, group
 import logging
-from discord import utils
 from discord.ext import tasks
 from models import Correios as correios_model, Package, session
 from datetime import datetime
@@ -73,17 +73,20 @@ class Correios(Cog):
         return await ctx.reply(f"Correios isn't enabled.")
 
     @correios.command(name="track")
-    async def track(self, ctx, cod, name = None):
+    async def track(self, ctx, cod, *label):
         """Register a track to a correios package
 
         Args:
             cod: Correios tracking code
             name: Discord @name
         """
-        member = (
-            ctx.message.author
-            if not name
-            else utils.find(lambda m: m.name == name or m.nick == name or str(m.id) in name, ctx.message.guild.members)
+        member = ctx.message.author
+            
+
+        tag = (
+            ' '.join(map(str, label))
+            if len(label) > 0
+            else ""
         )
 
         result = session.query(Package).filter_by(id=cod).first()
@@ -94,7 +97,8 @@ class Correios(Cog):
                 session.add(Package(
                     id = cod,
                     user_id = member.id,
-                    guild_id = ctx.guild.id
+                    guild_id = ctx.guild.id,
+                    tag = tag
                 ))
                 session.commit()
                 logging.info(f"Successfully added tracking for package {cod}.")
@@ -138,15 +142,22 @@ class Correios(Cog):
                         package_datetime = datetime.strptime(f"{package[0]['data']} {package[0]['hora']}", "%d/%m/%Y %H:%M")
                         if not res.last_update or package_datetime != res.last_update:
                             res.last_update = package_datetime
-                            session.commit()
                             resp_msg = f"```diff\n+ ORDER: {cod}"
                             for status in package:
                                 resp_msg += f"\n+ {status['data']} - {status['hora']} - {status['local']}\n- {status['mensagem']}\n"
 
                             resp_msg += "```"
                             user = self.bot.get_user(res.user_id)
-                            logging.info(f"Sending message to user: {user.display_name} package: {cod}.")
-                            await channel.send(f"{user.mention}\n{resp_msg}")
+                            logging.info(f"Sending message to user: {user.display_name} tag: {res.tag} package: {cod}.")
+                            
+                            if res.latest_message_id:
+                                await channel.delete_messages([discord.Object(res.latest_message_id)])
+
+                            message = await channel.send(f"{user.mention} {res.tag} \n{resp_msg}")
+                            logging.info(f"message{message}")
+                            res.latest_message_id = message.id
+                            session.commit()
+
 
                         if package[0]["mensagem"] == "Objeto entregue ao destinatário":
                             logging.info(f"Deleting package {cod}, package already delivered.")

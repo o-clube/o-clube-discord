@@ -9,7 +9,7 @@ Base = declarative_base()
 
 engine = create_engine(getenv("DATABASE_URL", "sqlite:///test.db"))
 
-Session = sessionmaker(bind=engine, autocommit=True)
+Session = sessionmaker(bind=engine)
 session = Session()
 
 class Warzone(Base):

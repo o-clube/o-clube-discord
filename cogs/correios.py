@@ -81,7 +81,7 @@ class Correios(Cog):
             tag (optional): Tag to identify your package. Defaults to ""
         """
         member = ctx.message.author
-            
+
         result = session.query(Package).filter_by(id=cod).first()
 
         if not result:
@@ -122,7 +122,11 @@ class Correios(Cog):
     async def fetch_track(self):
         """Task for fetching correios packages of tracked users."""
         logging.info("Starting correios tracking.")
-        servers = session.query(correios_model).all()
+
+        try:
+            servers = session.query(correios_model).all()
+        except Exception as e:
+            logging.error("Could not get servers", exc_info=e)
 
         for server in servers:
                 results = session.query(Package).filter_by(guild_id=server.guild_id).all()
@@ -141,9 +145,9 @@ class Correios(Cog):
 
                             resp_msg += "```"
                             user = self.bot.get_user(res.user_id)
-                            
+
                             logging.info(f"Sending message to user: {user.display_name} package: {cod}.")
-                            
+
                             if res.latest_message_id:
                                 await channel.delete_messages([discord.Object(res.latest_message_id)])
 

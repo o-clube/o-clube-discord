@@ -136,49 +136,72 @@ class Warzone(Cog):
             else:
                 return await ctx.reply("Please give a battletag or register your user.")
 
-        battletag = requests.utils.quote(battletag)
-        url = f"https://my.callofduty.com/api/papi-client/stats/cod/v1/title/mw/platform/battle/gamer/{battletag}/profile/type/wz"
 
-        s = self._get_cod_session()
-        data = s.get(url).json()["data"]
-        br_data = data["lifetime"]["mode"]["br"]["properties"]
-        seconds = timedelta(seconds=br_data["timePlayed"])
-        played = datetime(1, 1, 1) + seconds
-        time_played = []
-        if played.day - 1:
-            time_played.append(f"{played.day - 1} days")
-        if played.hour:
-            time_played.append(f"{played.hour} hours")
-        if played.minute:
-            time_played.append(f"{played.minute} minutes")
+        async with aiohttp.ClientSession() as aiosession:
+            try:
+                await aiosession.get("https://profile.callofduty.com/cod/login")
 
-        embed = Embed(
-            title=f"{data['username'].split('#')[0]} Warzone stats.",
-            color=Color.random(),
-        )
+                cookies = aiosession.cookie_jar.filter_cookies("https://callofduty.com")
 
-        embed.add_field(name="Time played", value=", ".join(time_played), inline=False)
-        embed.add_field(name="Games played", value=int(br_data["gamesPlayed"]), inline=True)
-        embed.add_field(
-            name="Win percentage",
-            value=f"{round(br_data['wins']/br_data['gamesPlayed']*100, 2)}%",
-            inline=True,
-        )
-        embed.add_field(name=chr(173), value=chr(173), inline=True)  # field skip
+                params = {
+                    "username": getenv("COD_USERNAME"),
+                    "password": getenv("COD_PASSWORD"),
+                    "remember_me": "true",
+                    "_csrf": cookies["XSRF-TOKEN"].value,
+                }
 
-        embed.add_field(name="Total wins", value=int(br_data["wins"]), inline=True)
-        embed.add_field(name="Top fives", value=int(br_data["topFive"]), inline=True)
-        embed.add_field(name="Top tens", value=int(br_data["topTen"]), inline=True)
+                await aiosession.post(
+                    "https://profile.callofduty.com/do_login?new_SiteId=cod", params=params, allow_redirects=False
+                )
 
-        embed.add_field(name="KDR", value=round(br_data["kdRatio"], 2), inline=True)
-        embed.add_field(name="Kills", value=int(br_data["kills"]), inline=True)
-        embed.add_field(name="Deaths", value=int(br_data["deaths"]), inline=True)
+            except Exception as e:
+                logging.error("Could not acquire session for warzone stats")
+                return
 
-        embed.add_field(name="Downs", value=int(br_data["downs"]), inline=True)
-        embed.add_field(name="Revives", value=int(br_data["revives"]), inline=True)
-        embed.add_field(name="Contracts", value=int(br_data["contracts"]), inline=True)
+            battletag = requests.utils.quote(battletag)
+            url = f"https://my.callofduty.com/api/papi-client/stats/cod/v1/title/mw/platform/battle/gamer/{battletag}/profile/type/wz"
 
-        return await ctx.reply(embed=embed)
+            async with aiosession.get(url) as resp:
+
+                if resp.status != 200:
+                    logging.warn(f"Error while retrieving warzone stats: {resp.status}\n URL: {url}")
+                    return await ctx.reply("Could not retrieve warzone stats.")
+
+                response = await resp.json()
+                data = response["data"]
+                br_data = data["lifetime"]["mode"]["br"]["properties"]
+                seconds = timedelta(seconds=br_data["timePlayed"])
+                played = datetime(1, 1, 1) + seconds
+                time_played = []
+                if played.day - 1:
+                    time_played.append(f"{played.day - 1} days")
+                if played.hour:
+                    time_played.append(f"{played.hour} hours")
+                if played.minute:
+                    time_played.append(f"{played.minute} minutes")
+
+                embed = Embed(
+                    title=f"{data['username'].split('#')[0]} Warzone stats.",
+                    color=Color.random(),
+                )
+
+                embed.add_field(name="Time played", value=", ".join(time_played), inline=False)
+
+                embed.add_field(name="Games played", value=int(br_data["gamesPlayed"]), inline=True)
+                embed.add_field(
+                    name="Win percentage",
+                    value=f"{round(br_data['wins']/br_data['gamesPlayed']*100, 2)}%",
+                    inline=True,
+                )
+                embed.add_field(name="Total wins", value=int(br_data["wins"]), inline=True)
+
+                embed.add_field(name="KDR", value=round(br_data["kdRatio"], 2), inline=True)
+                embed.add_field(name="Kills", value=int(br_data["kills"]), inline=True)
+                embed.add_field(name="Deaths", value=int(br_data["deaths"]), inline=True)
+
+                embed.add_field(name="Weekly KD", value=round(data['weekly']['all']['properties']['kdRatio'], 2), inline=True)
+
+                return await ctx.reply(embed=embed)
 
     @tasks.loop(minutes=int(getenv("COD_TRACK_TIME", 10)), reconnect=True)
     async def fetch_track(self):

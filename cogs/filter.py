@@ -1,12 +1,8 @@
 import discord
 import io
 from discord.ext.commands import Cog, command
-import logging
-from discord.ext import tasks
-from datetime import datetime
-from discord import Color, Embed, utils
+from discord import utils
 
-import re
 import aiohttp
 
 

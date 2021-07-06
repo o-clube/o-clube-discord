@@ -39,8 +39,6 @@ class Correios(Cog):
                         resp_msg += f"\n+ {status['data']} - {status['hora']}  -  {status['local']} \n- {status['mensagem']} \n"
 
                     resp_msg += "```"
-
-                    logging.info(f"Successfully added tracking for package {cod}.")
                     return await ctx.reply(f"{resp_msg}")
 
                 return await ctx.reply(f"Objeto não encontrado ou ainda não postado.")

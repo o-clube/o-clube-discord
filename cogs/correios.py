@@ -33,7 +33,7 @@ class Correios(Cog):
             cod = ctx.subcommand_passed
             if cod:
                 result = await self.get_correios(cod)
-                if len(result):
+                if result:
                     resp_msg = "```diff"
                     for status in result:
                         resp_msg += f"\n+ {status['data']} - {status['hora']}  -  {status['local']} \n- {status['mensagem']} \n"
@@ -86,7 +86,7 @@ class Correios(Cog):
 
         if not result:
             res = await self.get_correios(cod)
-            if len(res):
+            if res:
                 session.add(Package(
                     id = cod,
                     user_id = member.id,
@@ -135,6 +135,11 @@ class Correios(Cog):
                     try:
                         cod = res.id
                         package = await self.get_correios(cod)
+
+                        if not package:
+                            logging.info(f"No events for package {cod}. Skipping.")
+                            continue
+
                         logging.info(f"Fetching data from correios, package: {cod}.")
                         package_datetime = datetime.strptime(f"{package[0]['data']} {package[0]['hora']}", "%d/%m/%Y %H:%M")
                         if not res.last_update or package_datetime != res.last_update:
@@ -162,6 +167,7 @@ class Correios(Cog):
                             session.commit()
                     except Exception as e:
                         logging.error(f"The following error occured while processing package: {cod}", exc_info=e)
+
         logging.info("Correios tracking finished.")
 
     async def get_correios(self, tracking_code):
@@ -171,6 +177,9 @@ class Correios(Cog):
 
         async with aiohttp.ClientSession() as aiosession:
             res = await aiosession.post(url, data=data, headers=headers)
+
+            if res.status != 200:
+                return None
 
             parser = bs4(await res.text(), 'html.parser')
             dt_events = parser.find_all('td', {'class': 'sroDtEvent'})

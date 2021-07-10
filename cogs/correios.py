@@ -177,7 +177,7 @@ class Correios(Cog):
             res = await aiosession.post(url, data=data, headers=headers)
 
             if res.status != 200:
-                await res.close()
+                await aiosession.close()
                 return None
 
             parser = bs4(await res.text(), 'html.parser')

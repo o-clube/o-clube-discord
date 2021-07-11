@@ -265,37 +265,40 @@ class Warzone(Cog):
 
         for match in matches.values():
             for team in match.values():
-                p0 = team[0]
+                try:
+                    p0 = team[0]
 
-                channel = self.bot.get_channel(p0["channel_id"])
+                    channel = self.bot.get_channel(p0["channel_id"])
 
-                ordinal = lambda n: f'{n}{"tsnrhtdd"[(n//10%10!=1)*(n%10<4)*n%10::4]}'
+                    ordinal = lambda n: f'{n}{"tsnrhtdd"[(n//10%10!=1)*(n%10<4)*n%10::4]}'
 
-                placement = int(p0["playerStats"]["teamPlacement"])
-                placement_color = placement - 1 if placement < 4 else -1
+                    placement = int(p0["playerStats"]["teamPlacement"])
+                    placement_color = placement - 1 if placement < 4 else -1
 
-                embed = Embed(
-                    title=f"{p0['player']['username']}'s team finished in __{ordinal(placement)}__ against {p0['teamCount']} teams.",
-                    color=embed_color[placement_color],
-                    timestamp=datetime.fromtimestamp(p0["utcStartSeconds"]),
-                )
+                    embed = Embed(
+                        title=f"{p0['player']['username']}'s team finished in __{ordinal(placement)}__ against {p0['teamCount']} teams.",
+                        color=embed_color[placement_color],
+                        timestamp=datetime.fromtimestamp(p0["utcStartSeconds"]),
+                    )
 
-                embed.add_field(name="Match duration", value=f"{int(p0['duration'] // 60000)} minutes", inline=True)
-                embed.add_field(
-                    name="Team survived",
-                    value=f"{int(p0['playerStats']['teamSurvivalTime']) // 60000} minutes",
-                    inline=True,
-                )
-                embed.add_field(name=chr(173), value=chr(173), inline=True)  # field skip
+                    embed.add_field(name="Match duration", value=f"{int(p0['duration'] // 60000)} minutes", inline=True)
+                    embed.add_field(
+                        name="Team survived",
+                        value=f"{int(p0['playerStats']['teamSurvivalTime']) // 60000} minutes",
+                        inline=True,
+                    )
+                    embed.add_field(name=chr(173), value=chr(173), inline=True)  # field skip
 
-                for player in team:
-                    stats = f"""**KDA:** {round(player["playerStats"]["kdRatio"], 2)}
-                    **Kills:** {int(player["playerStats"]["kills"])} **Deaths:** {int(player["playerStats"]["deaths"])}
-                    **Damage:** {int(player["playerStats"]["damageDone"])}
-                    """
-                    embed.add_field(name=player["player"]["username"], value=inspect.cleandoc(stats), inline=True)
+                    for player in team:
+                        stats = f"""**KDA:** {round(player["playerStats"]["kdRatio"], 2)}
+                        **Kills:** {int(player["playerStats"]["kills"])} **Deaths:** {int(player["playerStats"]["deaths"])}
+                        **Damage:** {int(player["playerStats"]["damageDone"])}
+                        """
+                        embed.add_field(name=player["player"]["username"], value=inspect.cleandoc(stats), inline=True)
 
-                await channel.send(embed=embed)
+                    await channel.send(embed=embed)
+                except Exception as e:
+                    logging.warn(f"Could not retrieve data for team: {team}")
         session.commit()
         logging.info("Warzone tracking finished.")
 

@@ -1,5 +1,5 @@
 
-from discord.ext.commands import Cog
+from discord.ext.commands import Cog, command
 import asyncio
 
 from discord.player import FFmpegPCMAudio
@@ -21,6 +21,16 @@ class Welcome(Cog):
             audio = FFmpegPCMAudio('bomdia.mp3')
             vc.play(audio)
 
+            while  vc.is_playing():
+                await asyncio.sleep(.1)
+            await vc.disconnect()
+
+    @command(name="bomdia")
+    async def good_morning(self, ctx):
+        if ctx.author.voice and ctx.author.voice.channel:
+            vc = await ctx.author.voice.channel.connect()
+            audio = FFmpegPCMAudio('bomdia.mp3')
+            vc.play(audio)
             while  vc.is_playing():
                 await asyncio.sleep(.1)
             await vc.disconnect()

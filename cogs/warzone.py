@@ -19,7 +19,8 @@ from models import session
 
 def setup(bot):
     """COG Setup."""
-    bot.add_cog(Warzone(bot))
+    pass
+    # bot.add_cog(Warzone(bot))
 
 
 class Warzone(Cog):
@@ -251,8 +252,8 @@ class Warzone(Cog):
 
                     now = int(datetime.utcnow().strftime("%s"))
 
-                    if t.last_match == player_match["matchID"] or now - player_match["utcEndSeconds"] > 30 * 60:
-                        continue
+                    # if t.last_match == player_match["matchID"] or now - player_match["utcEndSeconds"] > 30 * 60:
+                    #     continue
 
                     matches.setdefault(player_match["matchID"], dict()).setdefault(
                         player_match["player"]["team"], list()

@@ -1,9 +1,10 @@
 from os import getenv
-
+from datetime import datetime
 from sqlalchemy import BigInteger, Boolean, Column, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.sqltypes import Boolean, Date, DateTime
+from sqlalchemy.sql import func
 
 Base = declarative_base()
 
@@ -27,6 +28,7 @@ class User(Base):
     guild_id = Column(BigInteger, primary_key=True)
     birthday = Column(Date, nullable=True)
     name = Column(String, nullable=False)
+    last_seen = Column(DateTime, server_default=func.now())
 
 
 class BDay(Base):

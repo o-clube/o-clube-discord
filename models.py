@@ -1,10 +1,13 @@
 from os import getenv
-from datetime import datetime
+
+import arrow
+
 from sqlalchemy import BigInteger, Boolean, Column, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.sql.sqltypes import Boolean, Date, DateTime
+from sqlalchemy.sql.sqltypes import Boolean, Date
 from sqlalchemy.sql import func
+from sqlalchemy_utils import ArrowType
 
 Base = declarative_base()
 
@@ -28,7 +31,7 @@ class User(Base):
     guild_id = Column(BigInteger, primary_key=True)
     birthday = Column(Date, nullable=True)
     name = Column(String, nullable=False)
-    last_seen = Column(DateTime, server_default=func.now())
+    last_seen = Column(ArrowType, default=arrow.now('America/Sao_Paulo'))
 
 
 class BDay(Base):
@@ -50,7 +53,7 @@ class Package(Base):
     user_id = Column(BigInteger, nullable=False)
     tag = Column(String)
     latest_message_id = Column(BigInteger)
-    last_update = Column(DateTime)
+    last_update = Column(ArrowType, default=arrow.now('America/Sao_Paulo'))
 
 
 Base.metadata.create_all(engine)

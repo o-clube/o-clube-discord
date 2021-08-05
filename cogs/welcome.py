@@ -22,19 +22,19 @@ class Welcome(Cog):
     async def on_voice_state_update(self, member, before, after):
         """Plays a welcome sound message when someone joins the channel."""
         if before.channel == None and after.channel != None and not member.bot and not after.self_deaf:
-            user = session.query(User).filter_by(member_id=member.id).first()
             now = arrow.now('America/Sao_Paulo')
-            if not user:
-                user = User(
-                        member_id=member.id,
+            for onlineMember in after.channel.members:
+                user = session.query(User).filter_by(member_id=onlineMember.id).first()
+                if not user:
+                    user = User(
+                        member_id=onlineMember.id,
                         guild_id=after.channel.guild.id,
-                        name=member.name,
+                        name=onlineMember.name,
                         last_seen=now
-                    )
-                session.add(user)
-            elif (now - user.last_seen).total_seconds() < 3600 * 12:
-                return
-
+                        )
+                    session.add(user)
+                elif (now - user.last_seen).total_seconds() < 3600 * 12:
+                    return
             vc = await after.channel.connect()
 
             day_period = get_day_period()

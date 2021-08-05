@@ -37,7 +37,7 @@ class Welcome(Cog):
                         )
                     session.add(user)
                 elif (now - user.last_seen).total_seconds() < 3600 * 12:
-                    return
+                    continue
             vc = await after.channel.connect()
 
             day_period = get_day_period()
@@ -55,11 +55,6 @@ class Welcome(Cog):
             audio = FFmpegPCMAudio(f)
 
             vc.play(audio)
-            while vc.is_playing():
-                await asyncio.sleep(.1)
-            await vc.disconnect()
-            user.last_seen = datetime.now()
-            session.commit()
 
             while vc.is_playing():
                 await asyncio.sleep(.1)

@@ -3,6 +3,9 @@ import asyncio
 
 from discord.ext.commands import Cog, command
 from discord.player import FFmpegPCMAudio
+from datetime import datetime
+
+
 
 from date_utils import DayPeriod, get_day_period
 from models import session, User
@@ -52,6 +55,11 @@ class Welcome(Cog):
             audio = FFmpegPCMAudio(f)
 
             vc.play(audio)
+            while vc.is_playing():
+                await asyncio.sleep(.1)
+            await vc.disconnect()
+            user.last_seen = datetime.now()
+            session.commit()
 
             while vc.is_playing():
                 await asyncio.sleep(.1)

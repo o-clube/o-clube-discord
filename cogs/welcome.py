@@ -26,8 +26,10 @@ class Welcome(Cog):
         """Plays a welcome sound message when someone joins the channel."""
         if before.channel == None and after.channel != None and not member.bot and not after.self_deaf:
             now = arrow.now('America/Sao_Paulo')
+            userList = []
             for onlineMember in after.channel.members:
                 user = session.query(User).filter_by(member_id=onlineMember.id).first()
+                userList.append(user)
                 if not user:
                     user = User(
                         member_id=onlineMember.id,
@@ -59,8 +61,8 @@ class Welcome(Cog):
             while vc.is_playing():
                 await asyncio.sleep(.1)
             await vc.disconnect()
-
-            user.last_seen = arrow.now('America/Sao_Paulo')
+            for user in userList:
+                user.last_seen = arrow.now('America/Sao_Paulo')
             session.commit()
 
 

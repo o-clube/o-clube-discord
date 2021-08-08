@@ -29,7 +29,6 @@ class Welcome(Cog):
             userList = []
             for onlineMember in after.channel.members:
                 user = session.query(User).filter_by(member_id=onlineMember.id).first()
-                userList.append(user)
                 if not user:
                     user = User(
                         member_id=onlineMember.id,
@@ -38,32 +37,37 @@ class Welcome(Cog):
                         last_seen=now
                         )
                     session.add(user)
-                elif (now - user.last_seen).total_seconds() < 3600 * 12:
+                    userList.append(user)
                     continue
-            vc = await after.channel.connect()
+                
+                if (now - user.last_seen).total_seconds() < 3600 * 12:
+                    continue
+                elif not onlineMember.voice.self_deaf:
+                    userList.append(user)
+                
 
-            day_period = get_day_period()
+            if userList:
+                day_period = get_day_period()
+                f = None
+                if day_period == DayPeriod.MORNING:
+                    f = 'data/welcome/mourao.mp3'
+                elif now.hour >= 12 and now.hour < 13:
+                    f = 'data/welcome/dilma.mp3'
+                elif day_period == DayPeriod.AFTERNOON:
+                    f = 'data/welcome/jornalhoje.mp3'
+                else:
+                    f = 'data/welcome/bonner.mp3'
 
-            f = None
-            if day_period == DayPeriod.MORNING:
-                 f = 'data/welcome/mourao.mp3'
-            elif now.hour >= 12 and now.hour < 13:
-                 f = 'data/welcome/dilma.mp3'
-            elif day_period == DayPeriod.AFTERNOON:
-                f = 'data/welcome/jornalhoje.mp3'
-            else:
-                f = 'data/welcome/bonner.mp3'
+                audio = FFmpegPCMAudio(f)
+                vc = await after.channel.connect()
+                vc.play(audio)
 
-            audio = FFmpegPCMAudio(f)
-
-            vc.play(audio)
-
-            while vc.is_playing():
-                await asyncio.sleep(.1)
-            await vc.disconnect()
-            for user in userList:
-                user.last_seen = arrow.now('America/Sao_Paulo')
-            session.commit()
+                while vc.is_playing():
+                    await asyncio.sleep(.5)
+                await vc.disconnect()
+                for user in userList:
+                    user.last_seen = now
+                session.commit()
 
 
 

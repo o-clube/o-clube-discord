@@ -9,3 +9,4 @@ beautifulsoup4==4.9.3
 aiolimiter==1.0.0b1
 SQLAlchemy-Utils==0.37.8
 arrow==1.1.1
+wavelink==0.9.10

@@ -38,7 +38,9 @@ class Welcome(Cog):
                         )
                     session.add(user)
                     userList.append(user)
-                elif (now - user.last_seen).total_seconds() < 3600 * 12:
+                    continue
+                
+                if (now - user.last_seen).total_seconds() < 3600 * 12:
                     continue
                 elif not onlineMember.voice.self_deaf:
                     userList.append(user)

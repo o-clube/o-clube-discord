@@ -4,6 +4,7 @@ import enum
 import random
 import re
 import typing as t
+import os
 from enum import Enum
 
 import aiohttp
@@ -300,10 +301,10 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
 
         nodes = {
             "MAIN": {
-                "host": "127.0.0.1",
+                "host": "lavalink",
                 "port": 2333,
-                "rest_uri": "http://127.0.0.1:2333",
-                "password": "perinni123@",
+                "rest_uri": "http://lavalink:2333",
+                "password": os.environ["LAVALINK_PASSWORD"],
                 "identifier": "MAIN",
                 "region": "south-america",
             }

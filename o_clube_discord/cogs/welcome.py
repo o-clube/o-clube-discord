@@ -1,14 +1,12 @@
 import arrow
 import asyncio
+from importlib import resources
 
 from discord.ext.commands import Cog, command
 from discord.player import FFmpegPCMAudio
-from datetime import datetime
 
-
-
-from date_utils import DayPeriod, get_day_period
-from models import session, User
+from ..date_utils import DayPeriod, get_day_period
+from ..models import session, User
 
 
 def setup(bot):
@@ -39,12 +37,12 @@ class Welcome(Cog):
                     session.add(user)
                     userList.append(user)
                     continue
-                
+
                 if (now - user.last_seen).total_seconds() < 3600 * 12:
                     continue
                 elif not onlineMember.voice.self_deaf:
                     userList.append(user)
-                
+
 
             if userList:
                 day_period = get_day_period()
@@ -58,7 +56,9 @@ class Welcome(Cog):
                 else:
                     f = 'data/welcome/bonner.mp3'
 
-                audio = FFmpegPCMAudio(f)
+
+
+                audio = FFmpegPCMAudio(resources.path(__package__) / f)
                 vc = await after.channel.connect()
                 vc.play(audio)
 

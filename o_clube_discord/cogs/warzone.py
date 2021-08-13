@@ -13,8 +13,7 @@ from discord import Color, Embed
 from discord.ext import tasks
 from discord.ext.commands import Cog, group
 
-from models import Warzone as wz_model
-from models import session
+from ..models import session, Warzone as wz_model
 
 
 def setup(bot):

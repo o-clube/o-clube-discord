@@ -8,7 +8,7 @@ from discord.ext import tasks
 from discord.ext.commands import Cog, group
 from sqlalchemy import extract, or_, func
 from psycopg2 import OperationalError
-from models import BDay, User, session
+from ..models import BDay, User, session
 
 
 def setup(bot):

@@ -3,7 +3,7 @@ import discord
 from discord.ext.commands import Cog, group
 import logging
 from discord.ext import tasks
-from models import Correios as correios_model, Package, session
+from ..models import Correios as correios_model, Package, session
 from datetime import datetime
 
 import re

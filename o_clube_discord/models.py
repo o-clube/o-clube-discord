@@ -1,4 +1,4 @@
-from os import getenv
+import os
 
 import arrow
 
@@ -6,12 +6,12 @@ from sqlalchemy import BigInteger, Boolean, Column, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.sqltypes import Boolean, Date
-from sqlalchemy.sql import func
+
 from sqlalchemy_utils import ArrowType
 
 Base = declarative_base()
 
-engine = create_engine(getenv("DATABASE_URL", "sqlite:///test.db"))
+engine = create_engine(os.getenv("DATABASE_URL", "sqlite:///test.db"))
 
 Session = sessionmaker(bind=engine)
 session = Session()

@@ -35,7 +35,7 @@ class Welcome(Cog):
                     last_seen=now.shift(hours=-24) # To have the bot welcome a new user who has joined the server for the first time
                     )
                 session.add(user)
-            if(check_day_period(user.last_seen) != check_day_period(now) or (now - user.last_seen).total_seconds() > 3600 * 12):
+            if(check_day_period(user.last_seen.to('America/Sao_Paulo')) != check_day_period(now) or (now - user.last_seen).total_seconds() > 3600 * 12):
                 day_period = get_day_period()
                 if day_period == DayPeriod.MORNING:
                     f = 'data/welcome/mourao.mp3'

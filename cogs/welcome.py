@@ -64,7 +64,6 @@ class Welcome(Cog):
                 await vc.disconnect()
                 for user in userList:
                     user.last_seen = now
-                user.last_seen = now
                 session.commit()
 
 

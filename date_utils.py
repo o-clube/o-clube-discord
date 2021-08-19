@@ -10,12 +10,14 @@ class DayPeriod(Enum):
 
 def get_day_period():
     now = arrow.now('America/Sao_Paulo')
+    return check_day_period(now)
 
-    if now.hour < 12:
+def check_day_period(now):
+    if 4 <= now.hour < 12:
         return DayPeriod.MORNING
-    elif now.hour < 18:
+    elif 12 <= now.hour < 18:
         return DayPeriod.AFTERNOON
-    elif now.hour < 6:
+    elif 0 <= now.hour < 4 or now.hour >= 18:
         return DayPeriod.NIGHT
 
 

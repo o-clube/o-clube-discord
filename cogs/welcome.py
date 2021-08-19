@@ -7,7 +7,7 @@ from datetime import datetime
 
 
 
-from date_utils import DayPeriod, get_day_period
+from date_utils import DayPeriod, get_day_period, check_day_period
 from models import session, User
 
 
@@ -31,22 +31,21 @@ class Welcome(Cog):
                 user = session.query(User).filter_by(member_id=onlineMember.id).first()
                 if not user:
                     user = User(
-                        member_id=onlineMember.id,
+                        member_id=member.id,
                         guild_id=after.channel.guild.id,
-                        name=onlineMember.name,
-                        last_seen=now
+                        name=member.name,
+                        last_seen=now.shift(hours=-24) # To have the bot welcome a new user who has joined the server for the first time
                         )
                     session.add(user)
                     userList.append(user)
                     continue
-                
-                if (now - user.last_seen).total_seconds() < 3600 * 12:
-                    continue
-                elif not onlineMember.voice.self_deaf:
-                    userList.append(user)
-                
 
-            if userList:
+                if(check_day_period(user.last_seen.to('America/Sao_Paulo')) != check_day_period(now) or (now - user.last_seen).total_seconds() > 3600 * 12):
+                    if not onlineMember.voice.self_deaf:
+                        userList.append(user)
+
+
+            if(userList):
                 day_period = get_day_period()
                 f = None
                 if day_period == DayPeriod.MORNING:
@@ -57,11 +56,9 @@ class Welcome(Cog):
                     f = 'data/welcome/jornalhoje.mp3'
                 else:
                     f = 'data/welcome/bonner.mp3'
-
                 audio = FFmpegPCMAudio(f)
                 vc = await after.channel.connect()
                 vc.play(audio)
-
                 while vc.is_playing():
                     await asyncio.sleep(.5)
                 await vc.disconnect()

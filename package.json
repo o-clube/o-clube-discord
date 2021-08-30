@@ -6,9 +6,11 @@
   "dependencies": {
     "@discordjs/builders": "^0.6.0",
     "@discordjs/rest": "^0.1.0-canary.0",
+    "@discordjs/voice": "^0.6.0",
     "correios.js": "^3.0.0",
     "discord-api-types": "^0.22.0",
-    "discord.js": "^13.1.0"
+    "discord.js": "^13.1.0",
+    "libsodium-wrappers": "^0.7.9"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -24,5 +26,8 @@
   "bugs": {
     "url": "https://github.com/o-clube/o-clube-discord/issues"
   },
-  "homepage": "https://github.com/o-clube/o-clube-discord#readme"
+  "homepage": "https://github.com/o-clube/o-clube-discord#readme",
+  "devDependencies": {
+    "eslint": "^7.32.0"
+  }
 }

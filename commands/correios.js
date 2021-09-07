@@ -19,7 +19,7 @@ module.exports = {
         })
 
         const embed = new MessageEmbed()
-            .setColor("YELLOW")
+            .setColor("DARK_YELLOW")
             .setTitle(cod)
             .addFields(a)
 

@@ -1,16 +1,15 @@
-FROM python:3.9.2-slim-buster
+FROM node:16
 ENV PYTHONUNBUFFERED 1
 
 RUN apt-get update -y \
-    && apt-get install -y libpq-dev libffi-dev libnacl-dev python3-dev ffmpeg\
+    && apt-get install -y ffmpeg\
     && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir /app
 WORKDIR /app
 
-COPY requirements.txt /app
-RUN pip install -r requirements.txt
+COPY package.json /app
+RUN npm install
 
 COPY . /app
 
-CMD ["python", "run.py"]
+CMD ["npm", "start"]

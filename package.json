@@ -11,7 +11,6 @@
     "discord-api-types": "^0.22.0",
     "discord.js": "^13.1.0",
     "libsodium-wrappers": "^0.7.9",
-    "mongoose": "^6.0.4",
     "pg": "^8.7.1",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.6.5"
@@ -32,6 +31,7 @@
   },
   "homepage": "https://github.com/o-clube/o-clube-discord#readme",
   "devDependencies": {
-    "eslint": "^7.32.0"
+    "eslint": "^7.32.0",
+    "eslint-config-google": "^0.14.0"
   }
 }

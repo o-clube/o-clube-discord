@@ -15,7 +15,8 @@ module.exports = {
   async execute(before, after) {
     if (before.channelId === null &&
       after.channelId !== null &&
-      !after.member.user.bot) {
+      !after.member.user.bot &&
+      !after.deaf) {
       const channel = after.member.voice.channel;
       const members = [...channel.members.keys()];
 

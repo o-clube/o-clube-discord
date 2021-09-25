@@ -9,7 +9,8 @@
     },
     "rules": {
         "no-unused-vars": "warn",
-        "require-jsdoc": "off"
+        "require-jsdoc": "off",
+        "max-len": ["error", { "code": 120 }]
         // "arrow-spacing": ["warn", { "before": true, "after": true }],
         // "brace-style": ["error", "stroustrup", { "allowSingleLine": true }],
         // "comma-dangle": ["error", "always-multiline"],

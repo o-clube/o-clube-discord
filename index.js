@@ -43,6 +43,19 @@ for (const file of eventFiles) {
   console.log(`Event ${event.name} loaded.`);
 }
 
+// Load tasks
+const taskFiles = fs.readdirSync('./tasks')
+    .filter((file) => file.endsWith('.js'));
+
+for (const file of taskFiles) {
+  const task = require(`./tasks/${file}`);
+  try {
+    task.run(client);
+    console.log(`Task ${task.name} started.`);
+  } catch (error) {
+    console.error(`Error while starting ${task.name}.\n${error}`);
+  }
+}
 
 // Handle interactions
 client.on('interactionCreate', async (interaction) => {

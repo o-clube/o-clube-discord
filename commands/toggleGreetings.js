@@ -1,4 +1,5 @@
-const {SlashCommandBuilder} = require('@discordjs/builders');
+const {bold, SlashCommandBuilder} = require('@discordjs/builders');
+const {Permissions} = require('discord.js');
 
 const GuildController = require('../controllers/GuildController.js');
 
@@ -7,6 +8,10 @@ module.exports = {
       .setName('greetings')
       .setDescription('Ativa/desativa a saudação!'),
   async execute(interaction) {
+    if (!interaction.member.permissions.has([Permissions.FLAGS.ADMINISTRATOR])) {
+      return await interaction.followUp(bold('Você não possui as permissões necessárias'));
+    }
+
     let reply = 'Erro ao alterar a saudação!';
 
     const res = await GuildController.find(interaction.guildId);
@@ -17,6 +22,6 @@ module.exports = {
       reply = `Saudação foi ${ res.greetings ? 'ativada' : 'desativada'}.`;
     }
 
-    await interaction.editReply(reply);
+    await interaction.followUp(reply);
   },
 };

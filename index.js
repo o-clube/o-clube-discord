@@ -18,42 +18,46 @@ const client = new Client({intents: [Intents.FLAGS.GUILDS,
 // Load commands
 client.commands = new Collection();
 // eslint-disable-next-line semi
-const commandFiles = fs.readdirSync('./commands')
-    .filter((file) => file.endsWith('.js'));
+if (fs.existsSync('./commands')) {
+  const commandFiles = fs.readdirSync('./commands')
+      .filter((file) => file.endsWith('.js'));
 
 
-for (const file of commandFiles) {
-  const command = require(`./commands/${file}`);
-  client.commands.set(command.data.name, command);
-  console.log(`Command ${command.data.name} loaded.`);
+  for (const file of commandFiles) {
+    const command = require(`./commands/${file}`);
+    client.commands.set(command.data.name, command);
+    console.log(`Command ${command.data.name} loaded.`);
+  }
 }
 
-
 // Load events
-const eventFiles = fs.readdirSync('./events')
-    .filter((file) => file.endsWith('.js'));
+if (fs.existsSync('./events')) {
+  const eventFiles = fs.readdirSync('./events')
+      .filter((file) => file.endsWith('.js'));
 
-for (const file of eventFiles) {
-  const event = require(`./events/${file}`);
-  if (event.once) {
-    client.once(event.name, (...args) => event.execute(...args));
-  } else {
-    client.on(event.name, (...args) => event.execute(...args));
+  for (const file of eventFiles) {
+    const event = require(`./events/${file}`);
+    if (event.once) {
+      client.once(event.name, (...args) => event.execute(...args));
+    } else {
+      client.on(event.name, (...args) => event.execute(...args));
+    }
+    console.log(`Event ${event.name} loaded.`);
   }
-  console.log(`Event ${event.name} loaded.`);
 }
 
 // Load tasks
-const taskFiles = fs.readdirSync('./tasks')
-    .filter((file) => file.endsWith('.js'));
-
-for (const file of taskFiles) {
-  const task = require(`./tasks/${file}`);
-  try {
-    task.run(client);
-    console.log(`Task ${task.name} started.`);
-  } catch (error) {
-    console.error(`Error while starting ${task.name}.\n${error}`);
+if (fs.existsSync('./tasks')) {
+  const taskFiles = fs.readdirSync('./tasks')
+      .filter((file) => file.endsWith('.js'));
+  for (const file of taskFiles) {
+    const task = require(`./tasks/${file}`);
+    try {
+      task.run(client);
+      console.log(`Task ${task.name} started.`);
+    } catch (error) {
+      console.error(`Error while starting ${task.name}.\n${error}`);
+    }
   }
 }
 

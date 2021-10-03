@@ -19,6 +19,8 @@ module.exports = {
     }
     const res = await Promise.all(promises);
 
-    return res;
+    return res.map((m) => {
+      return m[0];
+    });
   },
 };

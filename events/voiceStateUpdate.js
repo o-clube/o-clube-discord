@@ -32,7 +32,7 @@ module.exports = {
 
       const now = Date.now();
 
-      const [joinedMember, _] = res[0];
+      const joinedMember = res[0];
 
       if (now - joinedMember.last_greeting?.getTime() <= 12 * 3600 * 1000) {
         return;

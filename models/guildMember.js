@@ -14,7 +14,7 @@ class GuildMember extends Model {
       },
       birthday:
       {
-        type: DataTypes.DATEONLY,
+        type: DataTypes.DATE,
         defaultValue: null,
       },
     }, {

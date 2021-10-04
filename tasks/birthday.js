@@ -38,7 +38,7 @@ module.exports = {
             .setTitle('FELIZ ANIVERSÁRIO!!'); // TODO: use emojis without unicode in code
         let description = '🥳🎈🎂🎉\n@everyone';
         for (const member of members) {
-          description += `\n<@${member.member_id}> **- ${today.getFullYear() - member.birthday.getFullYear()}**`;
+          description += `\n<@${member.member_id}> **(${today.getFullYear() - member.birthday.getFullYear()})**`;
         }
         embed.setDescription(description);
 

@@ -33,16 +33,18 @@ module.exports = {
         const channel = client.channels.cache.find((ch) => {
           return ch.id === guild.birthday;
         });
-        const embed = new MessageEmbed()
-            .setColor('RANDOM')
-            .setTitle('FELIZ ANIVERSÁRIO!!'); // TODO: use emojis without unicode in code
-        let description = '🥳🎈🎂🎉\n@everyone';
-        for (const member of members) {
-          description += `\n<@${member.member_id}> **(${today.getFullYear() - member.birthday.getFullYear()})**`;
-        }
-        embed.setDescription(description);
+        if (members.lenght) {
+          const embed = new MessageEmbed()
+              .setColor('RANDOM')
+              .setTitle('FELIZ ANIVERSÁRIO!!'); // TODO: use emojis without unicode in code
+          let description = '🥳🎈🎂🎉\n@everyone';
+          for (const member of members) {
+            description += `\n<@${member.member_id}> **(${today.getFullYear() - member.birthday.getFullYear()})**`;
+          }
+          embed.setDescription(description);
 
-        await channel.send({embeds: [embed]});
+          await channel.send({embeds: [embed]});
+        }
       }
     }).daily().run();
   },

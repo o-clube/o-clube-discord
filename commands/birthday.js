@@ -59,7 +59,7 @@ module.exports = {
         break;
       }
       case 'rm': {
-        const member = GuildMemberController.findOrCreateMany(interaction.guildId,
+        const member = await GuildMemberController.findOrCreateMany(interaction.guildId,
             [interaction.options.getMember('membro').id]);
 
         member[0].birthday = null;

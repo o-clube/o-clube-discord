@@ -45,6 +45,7 @@ module.exports = {
           {
             where: {
               member_id: members,
+              guild_id: channel.guild.id,
             },
           });
 

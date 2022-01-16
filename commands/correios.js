@@ -25,6 +25,6 @@ module.exports = {
         .setTitle(cod)
         .addFields(a);
 
-    await interaction.editReply({embeds: [embed]});
+    await interaction.reply({embeds: [embed]});
   },
 };

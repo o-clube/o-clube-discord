@@ -70,6 +70,6 @@ module.exports = {
         break;
       }
     }
-    await interaction.editReply(reply);
+    await interaction.reply(reply);
   },
 };

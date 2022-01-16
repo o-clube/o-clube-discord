@@ -8,7 +8,7 @@ const {joinVoiceChannel,
 const GuildController = require('../controllers/GuildController.js');
 // eslint-disable-next-line max-len
 const GuildMemberController = require('../controllers/GuildMemberController.js');
-const GuildMember = require('../models/guildMember.js');
+const db = require('../models');
 
 module.exports = {
   name: 'voiceStateUpdate',
@@ -41,7 +41,7 @@ module.exports = {
       // eslint-disable-next-line max-len
       await GuildMemberController.findOrCreateMany(channel.guild.id, members);
 
-      await GuildMember.update({last_greeting: now},
+      await db.guild_member.update({last_greeting: now},
           {
             where: {
               member_id: members,

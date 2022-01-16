@@ -2,15 +2,14 @@ const Op = require('sequelize').Op;
 const {MessageEmbed} = require('discord.js');
 const sequelize = require('sequelize');
 const reel = require('node-reel');
-const Guild = require('../models/guild.js');
-const GuildMember = require('../models/guildMember.js');
+const db = require('../models');
 
 
 module.exports = {
   name: 'birthday',
   async run(client) {
     await reel().call(async () => {
-      const guilds = await Guild.findAll({
+      const guilds = await db.guild.findAll({
         where: {
           birthday: {
             [Op.ne]: null,
@@ -20,7 +19,7 @@ module.exports = {
       const today = new Date();
 
       for (const guild of guilds) {
-        const members = await GuildMember.findAll({
+        const members = await db.guild_member.findAll({
           where: {
             [Op.and]: [
               sequelize.where(sequelize.fn('date_part', 'day', sequelize.col('birthday')), today.getDate()),

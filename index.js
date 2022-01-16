@@ -5,12 +5,6 @@ const {Client, Collection, Intents} = require('discord.js');
 // Deploy commands to Discord API
 require('./deployCommands');
 
-// Init DB
-console.log('Starting database.');
-require('./database');
-console.log('Database started.');
-
-
 const client = new Client({intents: [Intents.FLAGS.GUILDS,
   Intents.FLAGS.GUILD_VOICE_STATES,
   Intents.FLAGS.GUILD_MEMBERS]});

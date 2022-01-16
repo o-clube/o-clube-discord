@@ -1,0 +1,150 @@
+{
+    "tables": {
+        "guilds": {
+            "tableName": "guilds",
+            "schema": {
+                "id": {
+                    "primaryKey": true,
+                    "field": "id",
+                    "seqType": "Sequelize.STRING"
+                },
+                "greetings": {
+                    "defaultValue": {
+                        "value": false
+                    },
+                    "field": "greetings",
+                    "seqType": "Sequelize.BOOLEAN"
+                },
+                "birthday": {
+                    "defaultValue": {
+                        "value": null
+                    },
+                    "field": "birthday",
+                    "seqType": "Sequelize.STRING"
+                },
+                "createdAt": {
+                    "allowNull": false,
+                    "field": "created_at",
+                    "seqType": "Sequelize.DATE"
+                },
+                "updatedAt": {
+                    "allowNull": false,
+                    "field": "updated_at",
+                    "seqType": "Sequelize.DATE"
+                }
+            },
+            "indexes": []
+        },
+        "guild_members": {
+            "tableName": "guild_members",
+            "schema": {
+                "member_id": {
+                    "allowNull": false,
+                    "field": "member_id",
+                    "seqType": "Sequelize.STRING"
+                },
+                "last_greeting": {
+                    "defaultValue": {
+                        "value": null
+                    },
+                    "field": "last_greeting",
+                    "seqType": "Sequelize.DATE"
+                },
+                "birthday": {
+                    "defaultValue": {
+                        "value": null
+                    },
+                    "field": "birthday",
+                    "seqType": "Sequelize.DATE"
+                },
+                "termooo_rank": {
+                    "defaultValue": {
+                        "value": 0
+                    },
+                    "field": "termooo_rank",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "termooo_attempts": {
+                    "defaultValue": {
+                        "internal": true,
+                        "value": "Sequelize.Array"
+                    },
+                    "field": "termooo_attempts",
+                    "seqType": "Sequelize.ARRAY(Sequelize.STRING)"
+                },
+                "termooo_guesses": {
+                    "defaultValue": {
+                        "internal": true,
+                        "value": "Sequelize.Array"
+                    },
+                    "field": "termooo_guesses",
+                    "seqType": "Sequelize.ARRAY(Sequelize.STRING)"
+                },
+                "createdAt": {
+                    "allowNull": false,
+                    "field": "created_at",
+                    "seqType": "Sequelize.DATE"
+                },
+                "updatedAt": {
+                    "allowNull": false,
+                    "field": "updated_at",
+                    "seqType": "Sequelize.DATE"
+                },
+                "guild_id": {
+                    "allowNull": true,
+                    "references": {
+                        "model": "guilds",
+                        "key": "id"
+                    },
+                    "onDelete": "SET NULL",
+                    "onUpdate": "CASCADE",
+                    "field": "guild_id",
+                    "seqType": "Sequelize.STRING"
+                }
+            },
+            "indexes": []
+        },
+        "guild_termooos": {
+            "tableName": "guild_termooos",
+            "schema": {
+                "word": {
+                    "field": "word",
+                    "seqType": "Sequelize.STRING"
+                },
+                "word_ascii": {
+                    "defaultValue": {
+                        "value": false
+                    },
+                    "field": "word_ascii",
+                    "seqType": "Sequelize.STRING"
+                },
+                "createdAt": {
+                    "allowNull": false,
+                    "field": "created_at",
+                    "seqType": "Sequelize.DATE"
+                },
+                "updatedAt": {
+                    "allowNull": false,
+                    "field": "updated_at",
+                    "seqType": "Sequelize.DATE"
+                },
+                "guild_id": {
+                    "allowNull": true,
+                    "references": {
+                        "model": "guilds",
+                        "key": "id"
+                    },
+                    "onDelete": "SET NULL",
+                    "onUpdate": "CASCADE",
+                    "field": "guild_id",
+                    "seqType": "Sequelize.STRING"
+                }
+            },
+            "indexes": []
+        }
+    },
+    "path": "/home/mzaglia/workspace/o-clube-discord/migrations/_current.json",
+    "backupPath": "/home/mzaglia/workspace/o-clube-discord/migrations/_current_bak.json",
+    "exists": false,
+    "revision": 1
+}

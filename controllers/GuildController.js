@@ -1,9 +1,9 @@
-const Guild = require('../models/guild.js');
+const db = require('../models');
 
 
 module.exports = {
   async find(guildId) {
-    const [guild, created] = await Guild.findOrCreate(
+    const [guild, created] = await db.guild.findOrCreate(
         {
           where: {id: guildId},
           defaults: {id: guildId},

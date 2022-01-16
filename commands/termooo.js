@@ -1,13 +1,10 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const GuildMemberController = require('../controllers/GuildMemberController');
 const { createCanvas } = require('canvas')
-const GuildTermooo = require('../models/guildTermooo.js');
 const { roundRect } = require('../utils/canvas.js');
 const fs = require('fs');
-const GuildMember = require('../models/guildMember');
-const Sequelize = require('sequelize')
-const width = 800
-const height = 200
+const Sequelize = require('sequelize');
+const db = require('../models');
 
 const dictionary = fs.readFileSync('data/termooo/palavras.txt', 'utf8').toString().split("\n")
 const dictionaryClean = fs.readFileSync('data/termooo/palavras-sem-acento.txt', 'utf8').toString().split("\n")
@@ -86,7 +83,7 @@ module.exports = {
       [member.id]);
     const db_member = res[0]
 
-    const termooo = await GuildTermooo.findOne({
+    const termooo = await db.guild_termooo.findOne({
       where: { guild_id: member.guild.id },
       order: [['created_at', 'DESC']]
     })
@@ -141,7 +138,7 @@ module.exports = {
       await interaction.followUp(`<@${member.id}> *- Pontos: ${db_member.termooo_rank}*\n` + displayPublicTermooo(db_member.termooo_attempts))
     }
 
-    await GuildMember.update({
+    await db.guild_member.update({
       termooo_attempts: Sequelize.fn('array_append', Sequelize.col('termooo_attempts'), aux),
       termooo_guesses: Sequelize.fn('array_append', Sequelize.col('termooo_guesses'), dictionary.at(validIdx)),
       termooo_rank: db_member.termooo_rank

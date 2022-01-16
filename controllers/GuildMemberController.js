@@ -1,11 +1,11 @@
-const GuildMember = require('../models/guildMember.js');
+const db = require('../models');
 
 module.exports = {
   async findOrCreateMany(guildId, members) {
     const promises = [];
 
     for (const m of members) {
-      promises.push(GuildMember.findOrCreate({
+      promises.push(db.guild_member.findOrCreate({
         where: {
           guild_id: guildId,
           member_id: m,

@@ -2,9 +2,7 @@
 const fs = require('fs')
 const reel = require('node-reel');
 const Op = require('sequelize').Op;
-const Guild = require('../models/guild.js');
-const GuildTermooo = require('../models/guildTermooo.js');
-const GuildMember = require('../models/guildMember.js')
+const db = require('../models');
 
 const words = [];
 
@@ -26,21 +24,20 @@ module.exports = {
     await reel().call(async () => {
       console.log("Selecting new termooo word at " + Date.now())
 
-      const guilds = await Guild.findAll();
+      const guilds = await db.guild.findAll();
 
       for (const guild of guilds) {
         const selectedWord = words[Math.floor(Math.random() * words.length)];
 
-        await GuildTermooo.create(
+        await db.guild_termooo.create(
           {
             word: selectedWord[0], word_ascii: selectedWord[1],
             guild_id: guild.id
           }
         )
 
-        await GuildMember.update({ termooo_attempts: [], termooo_guesses: [] }, { where: { guild_id: guild.id } })
+        await db.guild_member.update({ termooo_attempts: [], termooo_guesses: [] }, { where: { guild_id: guild.id } })
       }
-    }).twiceDaily(0, 12).run();
-    // }).everyMinute().run();
+    }).twiceDaily(9, 21).run();
   },
 };

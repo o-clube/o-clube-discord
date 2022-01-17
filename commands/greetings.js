@@ -9,7 +9,7 @@ module.exports = {
       .setDescription('Ativa/desativa a saudação!'),
   async execute(interaction) {
     if (!interaction.member.permissions.has([Permissions.FLAGS.ADMINISTRATOR])) {
-      return await interaction.followUp(bold('Você não possui as permissões necessárias'));
+      return await interaction.reply(bold('Você não possui as permissões necessárias'));
     }
 
     let reply = 'Erro ao alterar a saudação!';
@@ -22,6 +22,6 @@ module.exports = {
       reply = `Saudação foi ${ res.greetings ? 'ativada' : 'desativada'}.`;
     }
 
-    await interaction.followUp(reply);
+    await interaction.reply(reply);
   },
 };

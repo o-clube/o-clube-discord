@@ -92,6 +92,5 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'guild_member',
   });
-  GuildMember.removeAttribute('id');
   return GuildMember;
 };

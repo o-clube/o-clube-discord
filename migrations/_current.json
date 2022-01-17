@@ -38,6 +38,13 @@
         "guild_members": {
             "tableName": "guild_members",
             "schema": {
+                "id": {
+                    "allowNull": false,
+                    "primaryKey": true,
+                    "autoIncrement": true,
+                    "field": "id",
+                    "seqType": "Sequelize.INTEGER"
+                },
                 "member_id": {
                     "allowNull": false,
                     "field": "member_id",
@@ -153,5 +160,5 @@
     "path": "/home/mzaglia/workspace/o-clube-discord/migrations/_current.json",
     "backupPath": "/home/mzaglia/workspace/o-clube-discord/migrations/_current_bak.json",
     "exists": true,
-    "revision": 2
+    "revision": 3
 }

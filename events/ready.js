@@ -1,4 +1,3 @@
-const { Guild } = require('discord.js');
 const GuildController = require('../controllers/GuildController.js');
 const db = require('../models/index.js');
 const { generateTermooos } = require('../utils/termooo.js')

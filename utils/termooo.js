@@ -7,7 +7,7 @@ exports.generateTermooos = async function(guilds) {
 
   const words = []
 
-  // https://raw.githubusercontent.com/pythonprobr/palavras/master/palavras.txt
+  // http://www.nilc.icmc.usp.br/nilc/projects/unitex-pb/web/dicionarios.html
   const dictionary = fs.readFileSync('data/termooo/palavras.txt', 'utf8').toString().split("\n")
   const dictionaryClean = fs.readFileSync('data/termooo/palavras-sem-acento.txt', 'utf8').toString().split("\n")
 

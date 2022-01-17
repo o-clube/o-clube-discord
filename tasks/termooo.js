@@ -4,11 +4,9 @@ const reel = require('node-reel');
 const Op = require('sequelize').Op;
 const db = require('../models');
 
-const words = [];
+const words = []
 
-
-// https://www.ime.usp.br/~pf/dicios/br-utf8.txt
-// https://www.ime.usp.br/~pf/dicios/br-sem-acentos.txt
+// https://raw.githubusercontent.com/pythonprobr/palavras/master/palavras.txt
 const dictionary = fs.readFileSync('data/termooo/palavras.txt', 'utf8').toString().split("\n")
 const dictionaryClean = fs.readFileSync('data/termooo/palavras-sem-acento.txt', 'utf8').toString().split("\n")
 

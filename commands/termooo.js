@@ -88,8 +88,8 @@ module.exports = {
       order: [['created_at', 'DESC']]
     })
 
-    const word = termooo.word_ascii
-    const guess = interaction.options.getString('tentativa');
+    const word = termooo.word_ascii.toLowerCase()
+    const guess = interaction.options.getString('tentativa').toLowerCase();
 
     if (!guess || db_member.termooo_attempts.length == 6 || db_member.termooo_guesses.at(-1) == word) {
       await interaction.reply({

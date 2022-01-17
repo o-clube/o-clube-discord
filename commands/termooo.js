@@ -97,7 +97,8 @@ module.exports = {
         files: [displayTermooResults(db_member.termooo_attempts,
           db_member.termooo_guesses)], ephemeral: true
       })
-      return await interaction.followUp(`<@${member.id}> *- Pontos: ${db_member.termooo_rank}*\n` + displayPublicTermooo(db_member.termooo_attempts))
+      return await interaction.client.channels.cache.get(interaction.channelId)
+        .send(`<@${member.id}> *- Pontos: ${db_member.termooo_rank}*\n` + displayPublicTermooo(db_member.termooo_attempts))
     }
 
     // check if guess exists in tesseract
@@ -135,7 +136,8 @@ module.exports = {
 
     if(guess == word){
       db_member.termooo_rank = db_member.termooo_rank + rank - db_member.termooo_attempts.length
-      await interaction.followUp(`<@${member.id}> *- Pontos: ${db_member.termooo_rank}*\n` + displayPublicTermooo(db_member.termooo_attempts))
+      return await interaction.client.channels.cache.get(interaction.channelId)
+        .send(`<@${member.id}> *- Pontos: ${db_member.termooo_rank}*\n` + displayPublicTermooo(db_member.termooo_attempts))
     }
 
     await db.guild_member.update({

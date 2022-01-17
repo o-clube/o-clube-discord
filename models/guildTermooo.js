@@ -49,6 +49,5 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'guild_termooo',
   });
-  GuildTermooo.removeAttribute('id');
   return GuildTermooo;
 };

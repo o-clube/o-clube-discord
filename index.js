@@ -1,20 +1,22 @@
-const fs = require('fs');
+const fs = require("fs");
 
-const {Client, Collection, Intents} = require('discord.js');
+const {Client, Collection, Intents} = require("discord.js");
 
 // Deploy commands to Discord API
-require('./deployCommands');
+require("./deployCommands");
 
-const client = new Client({intents: [Intents.FLAGS.GUILDS,
-  Intents.FLAGS.GUILD_VOICE_STATES,
-  Intents.FLAGS.GUILD_MEMBERS]});
+const client = new Client({
+  intents: [Intents.FLAGS.GUILDS,
+    Intents.FLAGS.GUILD_VOICE_STATES,
+    Intents.FLAGS.GUILD_MEMBERS],
+});
 
 // Load commands
 client.commands = new Collection();
 // eslint-disable-next-line semi
-if (fs.existsSync('./commands')) {
-  const commandFiles = fs.readdirSync('./commands')
-      .filter((file) => file.endsWith('.js'));
+if (fs.existsSync("./commands")) {
+  const commandFiles = fs.readdirSync("./commands")
+      .filter((file) => file.endsWith(".js"));
 
 
   for (const file of commandFiles) {
@@ -25,9 +27,9 @@ if (fs.existsSync('./commands')) {
 }
 
 // Load events
-if (fs.existsSync('./events')) {
-  const eventFiles = fs.readdirSync('./events')
-      .filter((file) => file.endsWith('.js'));
+if (fs.existsSync("./events")) {
+  const eventFiles = fs.readdirSync("./events")
+      .filter((file) => file.endsWith(".js"));
 
   for (const file of eventFiles) {
     const event = require(`./events/${file}`);
@@ -41,9 +43,9 @@ if (fs.existsSync('./events')) {
 }
 
 // Load tasks
-if (fs.existsSync('./tasks')) {
-  const taskFiles = fs.readdirSync('./tasks')
-      .filter((file) => file.endsWith('.js'));
+if (fs.existsSync("./tasks")) {
+  const taskFiles = fs.readdirSync("./tasks")
+      .filter((file) => file.endsWith(".js"));
   for (const file of taskFiles) {
     const task = require(`./tasks/${file}`);
     try {
@@ -56,7 +58,7 @@ if (fs.existsSync('./tasks')) {
 }
 
 // Handle interactions
-client.on('interactionCreate', async (interaction) => {
+client.on("interactionCreate", async (interaction) => {
   if (!interaction.isCommand()) return;
 
   const command = client.commands.get(interaction.commandName);
@@ -67,9 +69,16 @@ client.on('interactionCreate', async (interaction) => {
     await command.execute(interaction);
   } catch (error) {
     console.error(error);
-    await interaction.reply({
-      content: 'There was an error while executing this command!',
-      ephemeral: true});
+
+    const reply = {
+      content: "There was an error while executing this command!",
+      ephemeral: true,
+    };
+    if (interaction.replied) {
+      await interaction.followUp(reply);
+    } else {
+      await interaction.reply(reply);
+    }
   }
 });
 

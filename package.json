@@ -35,7 +35,7 @@
   },
   "homepage": "https://github.com/o-clube/o-clube-discord#readme",
   "devDependencies": {
-    "eslint": "^7.32.0",
+    "eslint": "^8.7.0",
     "eslint-config-google": "^0.14.0"
   },
   "presets": [

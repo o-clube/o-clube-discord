@@ -99,14 +99,20 @@ module.exports = {
     });
 
     const word = termooo.word_ascii.toLowerCase();
-    const guess = interaction.options.getString("tentativa").toLowerCase();
+    const guess = interaction.options.getString("tentativa")?.toLowerCase();
 
     if (!guess || dbMember.termooo_attempts.length == 6 || dbMember.termooo_guesses.at(-1) == word) {
-      await interaction.reply({
-        content: termooo.word,
+      const reply = {
         files: [displayTermooResults(dbMember.termooo_attempts,
             dbMember.termooo_guesses)], ephemeral: true,
-      });
+      };
+
+      if (dbMember.termooo_attempts.length == 6 || dbMember.termooo_guesses.at(-1) == word) {
+        reply["content"] = termooo.word;
+      }
+
+      await interaction.reply(reply);
+
       return await interaction.client.channels.cache.get(interaction.channelId)
           .send(`<@${member.id}> *- Pontos: ${dbMember.termooo_rank}*\n` +
           displayPublicTermooo(dbMember.termooo_attempts));
@@ -158,7 +164,9 @@ module.exports = {
     await interaction.reply(reply);
 
     if (guess == word || dbMember.termooo_attempts.length == 6) {
-      dbMember.termooo_rank = dbMember.termooo_rank + rank - dbMember.termooo_attempts.length;
+      if (guess == word) {
+        dbMember.termooo_rank = dbMember.termooo_rank + rank - dbMember.termooo_attempts.length;
+      }
       return await interaction.client.channels.cache.get(interaction.channelId)
           .send(`<@${member.id}> *- Pontos: ${dbMember.termooo_rank}*\n` +
           displayPublicTermooo(dbMember.termooo_attempts));

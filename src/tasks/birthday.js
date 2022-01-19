@@ -1,12 +1,12 @@
-const Op = require('sequelize').Op;
-const {MessageEmbed} = require('discord.js');
-const sequelize = require('sequelize');
-const reel = require('node-reel');
-const db = require('../models');
+const Op = require("sequelize").Op;
+const {MessageEmbed} = require("discord.js");
+const sequelize = require("sequelize");
+const reel = require("node-reel");
+const db = require("../models");
 
 
 module.exports = {
-  name: 'birthday',
+  name: "birthday",
   async run(client) {
     await reel().call(async () => {
       const guilds = await db.guild.findAll({
@@ -22,9 +22,9 @@ module.exports = {
         const members = await db.guild_member.findAll({
           where: {
             [Op.and]: [
-              sequelize.where(sequelize.fn('date_part', 'day', sequelize.col('birthday')), today.getDate()),
-              sequelize.where(sequelize.fn('date_part', 'month', sequelize.col('birthday')), today.getMonth() + 1),
-              sequelize.where(sequelize.col('guild_id'), guild.id),
+              sequelize.where(sequelize.fn("date_part", "day", sequelize.col("birthday")), today.getDate()),
+              sequelize.where(sequelize.fn("date_part", "month", sequelize.col("birthday")), today.getMonth() + 1),
+              sequelize.where(sequelize.col("guild_id"), guild.id),
             ],
           },
         });
@@ -34,9 +34,9 @@ module.exports = {
         });
         if (members.lenght) {
           const embed = new MessageEmbed()
-              .setColor('RANDOM')
-              .setTitle('FELIZ ANIVERSÁRIO!!'); // TODO: use emojis without unicode in code
-          let description = '🥳🎈🎂🎉\n@everyone';
+              .setColor("RANDOM")
+              .setTitle("FELIZ ANIVERSÁRIO!!"); // TODO: use emojis without unicode in code
+          let description = "🥳🎈🎂🎉\n@everyone";
           for (const member of members) {
             description += `\n<@${member.member_id}> **(${today.getFullYear() - member.birthday.getFullYear()})**`;
           }

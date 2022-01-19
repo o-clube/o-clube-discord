@@ -14,25 +14,25 @@ const client = new Client({
 // Load commands
 client.commands = new Collection();
 // eslint-disable-next-line semi
-if (fs.existsSync("./commands")) {
-  const commandFiles = fs.readdirSync("./commands")
+if (fs.existsSync("./src/commands")) {
+  const commandFiles = fs.readdirSync("./src/commands")
       .filter((file) => file.endsWith(".js"));
 
 
   for (const file of commandFiles) {
-    const command = require(`./commands/${file}`);
+    const command = require(`./src/commands/${file}`);
     client.commands.set(command.data.name, command);
     console.log(`Command ${command.data.name} loaded.`);
   }
 }
 
 // Load events
-if (fs.existsSync("./events")) {
-  const eventFiles = fs.readdirSync("./events")
+if (fs.existsSync("./src/events")) {
+  const eventFiles = fs.readdirSync("./src/events")
       .filter((file) => file.endsWith(".js"));
 
   for (const file of eventFiles) {
-    const event = require(`./events/${file}`);
+    const event = require(`./src/events/${file}`);
     if (event.once) {
       client.once(event.name, (...args) => event.execute(...args));
     } else {
@@ -43,11 +43,11 @@ if (fs.existsSync("./events")) {
 }
 
 // Load tasks
-if (fs.existsSync("./tasks")) {
-  const taskFiles = fs.readdirSync("./tasks")
+if (fs.existsSync("./src/tasks")) {
+  const taskFiles = fs.readdirSync("./src/tasks")
       .filter((file) => file.endsWith(".js"));
   for (const file of taskFiles) {
-    const task = require(`./tasks/${file}`);
+    const task = require(`./src/tasks/${file}`);
     try {
       task.run(client);
       console.log(`Task ${task.name} started.`);

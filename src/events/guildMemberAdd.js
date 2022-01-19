@@ -1,7 +1,7 @@
-const GuildMemberController = require('../controllers/GuildMemberController');
+const GuildMemberController = require("../controllers/GuildMemberController");
 
 module.exports = {
-  name: 'guildMemberAdd',
+  name: "guildMemberAdd",
   async execute(member) {
     await GuildMemberController.findOrCreateMany(member.guild.id,
         [member.id]);

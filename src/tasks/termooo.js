@@ -1,9 +1,9 @@
 
-const reel = require('node-reel');
-const { generateTermooos } = require('../utils/termooo.js');
+const reel = require("node-reel");
+const {generateTermooos} = require("../utils/termooo.js");
 
 module.exports = {
-  name: 'termooo',
+  name: "termooo",
   async run(client) {
     await reel().call(async () => {
       await generateTermooos();

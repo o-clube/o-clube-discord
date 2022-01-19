@@ -3,15 +3,15 @@ const {joinVoiceChannel,
   createAudioResource,
   NoSubscriberBehavior,
   StreamType,
-  AudioPlayerStatus} = require('@discordjs/voice');
+  AudioPlayerStatus} = require("@discordjs/voice");
 
-const GuildController = require('../controllers/GuildController.js');
+const GuildController = require("../controllers/GuildController.js");
 // eslint-disable-next-line max-len
-const GuildMemberController = require('../controllers/GuildMemberController.js');
-const db = require('../models');
+const GuildMemberController = require("../controllers/GuildMemberController.js");
+const db = require("../models");
 
 module.exports = {
-  name: 'voiceStateUpdate',
+  name: "voiceStateUpdate",
   async execute(before, after) {
     if (before.channelId === null &&
       after.channelId !== null &&
@@ -61,10 +61,10 @@ module.exports = {
       });
       try {
         const sounds = [
-          './data/welcome/bonner.mp3',
-          './data/welcome/mourao.mp3',
-          './data/welcome/dilma.mp3',
-          './data/welcome/jornalhoje.mp3',
+          "./data/welcome/bonner.mp3",
+          "./data/welcome/mourao.mp3",
+          "./data/welcome/dilma.mp3",
+          "./data/welcome/jornalhoje.mp3",
         ];
         const hour = new Date().getHours();
         let idx = 0;

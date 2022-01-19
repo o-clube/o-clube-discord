@@ -4,7 +4,6 @@
         "commonjs": true,
         "es2021": true
     },
-
     "extends": [
         "google"
     ],
@@ -13,8 +12,15 @@
     },
     "rules": {
         "no-unused-vars": "warn",
+        "new-cap": "off",
+        "valid-jsdoc": "off",
         "require-jsdoc": "off",
-        "max-len": ["error", { "code": 120 }],
+        "max-len": [
+            "error",
+            {
+                "code": 120
+            }
+        ],
         "quotes": [
             "error",
             "double"

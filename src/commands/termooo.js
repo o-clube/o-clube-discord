@@ -26,6 +26,59 @@ function displayPublicTermooo(attempts) {
   }
   return reply;
 }
+
+function drawKeyboardAttempts(attempts, guesses) {
+  const qwerty = "qwertyuiopasdfghjklzxcvbnm";
+  const colors = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  const size = 32;
+  const spacing = 4;
+
+  let rectX = 0;
+  let rectY = 0;
+  const canvas = createCanvas(size * 10 + spacing * 9, size * 3 + spacing * 2);
+  const ctx = canvas.getContext("2d");
+
+  ctx.lineWidth = spacing;
+  ctx.font = "600 22px Mitr";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  let row = 0;
+  for (let j = 0; j< attempts.length; j++) {
+    for (let k = 0; k < attempts[j].length; k++) {
+      if (attempts[j][k] == "2") {
+        colors[qwerty.indexOf(guesses[j][k])] = 2;
+      } else if (attempts[j][k] == "1") {
+        colors[qwerty.indexOf(guesses[j][k])] = 1;
+      } else {
+        colors[qwerty.indexOf(guesses[j][k])] = 3;
+      }
+    }
+  }
+  console.log(colors);
+  for (let i = 0; i < qwerty.length; i++) {
+    ctx.fillStyle = "#4c4347";
+    if (colors[i] == 2) {
+      ctx.fillStyle = "#3aa394";
+    } else if (colors[i] == 1) {
+      ctx.fillStyle = "#d3ad69";
+    } else if (colors[i] == 3) {
+      ctx.fillStyle = "#312a2c";
+    }
+    roundRect(ctx, rectX, rectY, size, size, size * 0.10, true, false);
+    ctx.fillStyle = "#fff";
+    ctx.fillText(qwerty[i].toUpperCase(), rectX + (size / 2), rectY + (size / 2));
+    rectX = rectX + size + spacing;
+    if (qwerty[i] == "p" || qwerty[i] == "l") {
+      row++;
+      rectY = rectY + size + spacing;
+      rectX = 0 + row * spacing * 4;
+    }
+  }
+
+  const buffer = canvas.toBuffer("image/png");
+  return buffer;
+}
+
 function displayTermooResults(attempts, guesses) {
   const size = 48;
   const spacing = 4;
@@ -53,13 +106,13 @@ function displayTermooResults(attempts, guesses) {
       roundRect(ctx, rectX, rectY, size, size, size * 0.10, true, false);
       ctx.fillStyle = "#fff";
       ctx.fillText(guesses[j][i].toUpperCase(), rectX + (size / 2), rectY + (size / 2));
-      rectX = rectX + size + 4;
+      rectX = rectX + size + spacing;
     }
-    rectY = rectY + size + 4;
+    rectY = rectY + size + spacing;
     rectX = 0;
   }
 
-  buffer = canvas.toBuffer("image/png");
+  const buffer = canvas.toBuffer("image/png");
   return buffer;
 }
 
@@ -104,6 +157,7 @@ module.exports = {
     if (!guess || dbMember.termooo_attempts.length == 6 || dbMember.termooo_guesses.at(-1) == word) {
       const reply = {
         files: [displayTermooResults(dbMember.termooo_attempts,
+            dbMember.termooo_guesses), drawKeyboardAttempts(dbMember.termooo_attempts,
             dbMember.termooo_guesses)], ephemeral: true,
       };
 
@@ -154,6 +208,7 @@ module.exports = {
 
     const reply = {
       files: [displayTermooResults(dbMember.termooo_attempts,
+          dbMember.termooo_guesses), drawKeyboardAttempts(dbMember.termooo_attempts,
           dbMember.termooo_guesses)], ephemeral: true,
     };
 
@@ -167,7 +222,7 @@ module.exports = {
       if (guess == word) {
         dbMember.termooo_rank = dbMember.termooo_rank + rank - dbMember.termooo_attempts.length;
       }
-      return await interaction.client.channels.cache.get(interaction.channelId)
+      await interaction.client.channels.cache.get(interaction.channelId)
           .send(`<@${member.id}> *- Pontos: ${dbMember.termooo_rank}*\n` +
           displayPublicTermooo(dbMember.termooo_attempts));
     }

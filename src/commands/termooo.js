@@ -54,7 +54,6 @@ function drawKeyboardAttempts(attempts, guesses) {
       }
     }
   }
-  console.log(colors);
   for (let i = 0; i < qwerty.length; i++) {
     ctx.fillStyle = "#4c4347";
     if (colors[i] == 2) {
@@ -74,9 +73,7 @@ function drawKeyboardAttempts(attempts, guesses) {
       rectX = 0 + row * spacing * 4;
     }
   }
-
-  const buffer = canvas.toBuffer("image/png");
-  return buffer;
+  return canvas;
 }
 
 function displayTermooResults(attempts, guesses) {
@@ -86,8 +83,18 @@ function displayTermooResults(attempts, guesses) {
   let rectX = 0;
   let rectY = 0;
 
-  const canvas = createCanvas(size * 5 + spacing * 4, size * attempts.length + ((attempts.length - 1) * spacing));
+  const kbCanvas = drawKeyboardAttempts(attempts, guesses);
+
+  const width = size * 5 + spacing * 4;
+  let height = size * attempts.length + ((attempts.length - 1) * spacing);
+
+  height = height > kbCanvas.height ? height : kbCanvas.height;
+
+  const canvas = createCanvas(width + kbCanvas.width + 10, height);
+
   const ctx = canvas.getContext("2d");
+  console.log(canvas.width);
+  console.log(canvas.height);
 
   ctx.lineWidth = spacing;
   ctx.font = "600 28px Mitr";
@@ -112,6 +119,7 @@ function displayTermooResults(attempts, guesses) {
     rectX = 0;
   }
 
+  ctx.drawImage(kbCanvas, width + 10, height / 2 - kbCanvas.height / 2);
   const buffer = canvas.toBuffer("image/png");
   return buffer;
 }
@@ -157,7 +165,6 @@ module.exports = {
     if (!guess || dbMember.termooo_attempts.length == 6 || dbMember.termooo_guesses.at(-1) == word) {
       const reply = {
         files: [displayTermooResults(dbMember.termooo_attempts,
-            dbMember.termooo_guesses), drawKeyboardAttempts(dbMember.termooo_attempts,
             dbMember.termooo_guesses)], ephemeral: true,
       };
 
@@ -208,7 +215,6 @@ module.exports = {
 
     const reply = {
       files: [displayTermooResults(dbMember.termooo_attempts,
-          dbMember.termooo_guesses), drawKeyboardAttempts(dbMember.termooo_attempts,
           dbMember.termooo_guesses)], ephemeral: true,
     };
 

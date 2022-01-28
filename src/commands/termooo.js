@@ -93,8 +93,6 @@ function displayTermooResults(attempts, guesses) {
   const canvas = createCanvas(width + kbCanvas.width + 10, height);
 
   const ctx = canvas.getContext("2d");
-  console.log(canvas.width);
-  console.log(canvas.height);
 
   ctx.lineWidth = spacing;
   ctx.font = "600 28px Mitr";
@@ -135,9 +133,17 @@ function getIndicesOf(searchStr, str) {
     indices.push(index);
     startIndex = index + searchStrLen;
   }
-  return indices;
+  return indices.sort();
 }
 
+function getDictWord(word) {
+  const letters = {};
+
+  word.split("").map((letter)=>{
+    letters[letter] = getIndicesOf(letter, word);
+  });
+  return letters;
+}
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -189,21 +195,31 @@ module.exports = {
       return await interaction.reply({content: "Palavra inválida.", ephemeral: true});
     }
 
-    const aux = ["0", "0", "0", "0", "0"];
-    for (let i = 0; i < 5; i++) {
-      const correct = word[i];
-      const attempt = guess[i];
-      if (attempt === correct) {
-        aux[i] = "2";
-      } else {
-        const idxs = getIndicesOf(attempt, word);
-        if (idxs.length) {
-          for (const idx of idxs) {
-            if (aux[idx] != "2") {
-              aux[i] = "1";
+    const lettersGuess = getDictWord(guess);
+
+    const lettersWord = getDictWord(word);
+
+    const aux = [0, 0, 0, 0, 0];
+
+    for (const [key, value] of Object.entries(lettersGuess)) {
+      if (key in lettersWord) {
+        let intersection = [];
+        intersection = lettersWord[key].filter((x) => value.includes(x));
+
+        if (intersection) {
+          for (const val of intersection) {
+            aux[val] = 2;
+          }
+          if (intersection.length != value.length && value.length === lettersWord[key].length) {
+            const difference = value.filter((x) => !lettersWord[key].includes(x));
+            console.log(difference);
+            for (const val of difference) {
+              if (!intersection.includes(val)) {
+                aux[val] = 1;
+              }
             }
           }
-        }
+        };
       }
     }
 

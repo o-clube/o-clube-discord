@@ -32,7 +32,7 @@ module.exports = {
         const channel = client.channels.cache.find((ch) => {
           return ch.id === guild.birthday;
         });
-        if (members.lenght) {
+        if (members.length) {
           const embed = new MessageEmbed()
               .setColor("RANDOM")
               .setTitle("FELIZ ANIVERSÁRIO!!"); // TODO: use emojis without unicode in code

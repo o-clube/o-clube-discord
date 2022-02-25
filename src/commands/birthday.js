@@ -10,7 +10,8 @@ module.exports = {
       .setDescription("Funcionalidades de aniversário")
       .addSubcommand((subcommand) => subcommand.setName("toggle")
           .setDescription("Selecione um canal para notifações.")
-          .addChannelOption((option) => option.setName("canal").setDescription("Canal para enviar as mensagens.")))
+          .addChannelOption((option) => option.setName("canal").setDescription("Canal para enviar as mensagens.")
+              .setRequired(true)))
       .addSubcommand((subcommand) => subcommand.setName("add")
           .setDescription("Adiciona ou atualiza o aniversário de um usuário.")
           .addUserOption((option) => option.setName("membro").setDescription("ID do membro.").setRequired(true))
@@ -30,7 +31,7 @@ module.exports = {
         const res = await GuildController.find(interaction.guildId);
 
         const channel = interaction.options.getChannel("canal");
-        if (channel.type !== "GUILD_TEXT") {
+        if (channel && channel.type !== "GUILD_TEXT") {
           return await interaction.followUp(bold("Este canal não é de texto."));
         }
         const rec = await res.update({birthday: channel?.id});
@@ -49,12 +50,11 @@ module.exports = {
         try {
           const [day, month, year] = date.split("/");
           member[0].birthday = new Date(`${month}/${day}/${year}`);
+          reply = "Aniversário adicionado";
+          await member[0].save();
         } catch (error) {
           console.error(error);
           reply = "Data inválida.";
-        } finally {
-          reply = "Aniversário adicionado";
-          await member[0].save();
         }
         break;
       }

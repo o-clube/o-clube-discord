@@ -5,6 +5,8 @@ const {joinVoiceChannel,
   StreamType,
   AudioPlayerStatus} = require("@discordjs/voice");
 
+const _ = require("lodash");
+
 const GuildController = require("../controllers/GuildController.js");
 // eslint-disable-next-line max-len
 const GuildMemberController = require("../controllers/GuildMemberController.js");
@@ -65,12 +67,13 @@ module.exports = {
           "./data/welcome/mourao.mp3",
           "./data/welcome/dilma.mp3",
           "./data/welcome/jornalhoje.mp3",
+          "./data/welcome/babu.mp3",
         ];
         const hour = new Date().getHours();
         let idx = 0;
 
         if (4 <= hour && hour < 12) {
-          idx = 1;
+          idx = _.sample([1, 4]);
         } else if ( 12 <= hour && hour < 13) {
           idx = 2;
         } else if ( 13 <= hour && hour < 18) {

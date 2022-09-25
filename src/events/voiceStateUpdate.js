@@ -68,12 +68,13 @@ module.exports = {
           "./data/welcome/dilma.mp3",
           "./data/welcome/jornalhoje.mp3",
           "./data/welcome/babu.mp3",
+          "./data/welcome/bomdiaeocaralho.mp3",
         ];
         const hour = new Date().getHours();
         let idx = 0;
 
         if (4 <= hour && hour < 12) {
-          idx = _.sample([1, 4]);
+          idx = _.sample([1, 4, 5]);
         } else if ( 12 <= hour && hour < 13) {
           idx = 2;
         } else if ( 13 <= hour && hour < 18) {

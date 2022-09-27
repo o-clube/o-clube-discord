@@ -20,6 +20,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       defaultValue: null,
     },
+    announcement: {
+      type: DataTypes.STRING,
+      defaultValue: null,
+    },
   }, {
     underscored: true,
     sequelize,

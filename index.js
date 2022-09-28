@@ -1,14 +1,14 @@
 const fs = require("fs");
 
-const {Client, Collection, Intents} = require("discord.js");
+const {Client, Collection, GatewayIntentBits} = require("discord.js");
 
 // Deploy commands to Discord API
 require("./deployCommands");
 
 const client = new Client({
-  intents: [Intents.FLAGS.GUILDS,
-    Intents.FLAGS.GUILD_VOICE_STATES,
-    Intents.FLAGS.GUILD_MEMBERS],
+  intents: [GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.GuildMembers],
 });
 
 // Load commands

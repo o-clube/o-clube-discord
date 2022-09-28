@@ -1,5 +1,5 @@
 const {bold, SlashCommandBuilder} = require("@discordjs/builders");
-const {Permissions} = require("discord.js");
+const {ChannelType, PermissionsBitField} = require("discord.js");
 
 const GuildController = require("../controllers/GuildController.js");
 const GuildMemberController = require("../controllers/GuildMemberController.js");
@@ -25,13 +25,13 @@ module.exports = {
     let reply = "Erro ao alterar as notificações de aniversários!";
     switch (interaction.options.getSubcommand()) {
       case "toggle": {
-        if (!interaction.member.permissions.has([Permissions.FLAGS.ADMINISTRATOR])) {
+        if (!interaction.member.permissions.has([PermissionsBitField.Flags.Administrator])) {
           return await interaction.followUp(bold("Você não possui as permissões necessárias"));
         }
         const res = await GuildController.find(interaction.guildId);
 
         const channel = interaction.options.getChannel("canal");
-        if (channel && channel.type !== "GUILD_TEXT") {
+        if (channel && channel.type !== ChannelType.GuildText) {
           return await interaction.followUp(bold("Este canal não é de texto."));
         }
         const rec = await res.update({birthday: channel?.id});

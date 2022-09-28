@@ -1,5 +1,5 @@
 const {bold, SlashCommandBuilder} = require("@discordjs/builders");
-const {Permissions} = require("discord.js");
+const {PermissionsBitField} = require("discord.js");
 
 const GuildController = require("../controllers/GuildController.js");
 
@@ -8,7 +8,7 @@ module.exports = {
       .setName("greetings")
       .setDescription("Ativa/desativa a saudação!"),
   async execute(interaction) {
-    if (!interaction.member.permissions.has([Permissions.FLAGS.ADMINISTRATOR])) {
+    if (!interaction.member.permissions.has([PermissionsBitField.Flags.Administrator])) {
       return await interaction.reply(bold("Você não possui as permissões necessárias"));
     }
 

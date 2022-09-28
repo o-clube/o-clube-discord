@@ -1,5 +1,5 @@
 const Op = require("sequelize").Op;
-const {MessageEmbed} = require("discord.js");
+const {EmbedBuilder} = require("discord.js");
 const sequelize = require("sequelize");
 const reel = require("node-reel");
 const db = require("../models");
@@ -33,7 +33,7 @@ module.exports = {
           return ch.id === guild.birthday;
         });
         if (members.length) {
-          const embed = new MessageEmbed()
+          const embed = new EmbedBuilder()
               .setColor("RANDOM")
               .setTitle("FELIZ ANIVERSÁRIO!!"); // TODO: use emojis without unicode in code
           let description = "🥳🎈🎂🎉\n@everyone";

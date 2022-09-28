@@ -3,7 +3,7 @@ const GuildController = require("../controllers/GuildController");
 const {EmbedBuilder} = require("discord.js");
 
 module.exports = {
-  name: "guildMemberAdd",
+  name: "guildMemberRemove",
   async execute(member) {
     await GuildMemberController.findOrCreateMany(member.guild.id,
         [member.id]);
@@ -16,10 +16,10 @@ module.exports = {
     const channel = member.client.channels.cache.get(guild.announcement);
 
     const embed = new EmbedBuilder()
-        .setColor("DarkGreen")
+        .setColor("DarkRed")
         .setAuthor({name: member.user.tag, iconURL: member.displayAvatarURL()})
         .setThumbnail(member.displayAvatarURL())
-        .setDescription("Entrou no servidor");
+        .setDescription("Saiu do servidor");
 
     channel.send({embeds: [embed]});
   },

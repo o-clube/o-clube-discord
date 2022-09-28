@@ -5,7 +5,11 @@
 	"name": "Node.js & PostgreSQL",
 	"dockerComposeFile": "docker-compose.yml",
 	"service": "app",
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,Z",
 	"workspaceFolder": "/workspace",
+
+	"runArgs": ["--userns=keep-id"],
+	"containerUser": "vscode",
 
 	// Set *default* container specific settings.json values on container create.
 	"settings": {
@@ -13,7 +17,7 @@
 			"name": "Container database",
 			"driver": "PostgreSQL",
 			"previewLimit": 50,
-			"server": "localhost",
+			"server": "db",
 			"port": 5432,
 			"database": "postgres",
 			"username": "postgres",
@@ -36,5 +40,5 @@
 	"postCreateCommand": "npm install",
 
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
-	"remoteUser": "node"
+	// "remoteUser": "node"
 }

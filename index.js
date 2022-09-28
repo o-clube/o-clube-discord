@@ -33,10 +33,14 @@ if (fs.existsSync("./src/events")) {
 
   for (const file of eventFiles) {
     const event = require(`./src/events/${file}`);
-    if (event.once) {
-      client.once(event.name, (...args) => event.execute(...args));
-    } else {
-      client.on(event.name, (...args) => event.execute(...args));
+    try {
+      if (event.once) {
+        client.once(event.name, (...args) => event.execute(...args));
+      } else {
+        client.on(event.name, (...args) => event.execute(...args));
+      }
+    } catch (error) {
+      console.error(error);
     }
     console.log(`Event ${event.name} loaded.`);
   }

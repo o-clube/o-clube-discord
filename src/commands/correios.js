@@ -38,6 +38,6 @@ module.exports = {
       return embeds;
     });
 
-    await interaction.reply({embeds}, {ephemeral: true});
+    await interaction.reply({embeds, ephemeral: true});
   },
 };

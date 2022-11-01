@@ -7,6 +7,8 @@ const {joinVoiceChannel,
 
 const _ = require("lodash");
 
+const {readdir} = require("fs/promises");
+
 const GuildController = require("../controllers/GuildController.js");
 // eslint-disable-next-line max-len
 const GuildMemberController = require("../controllers/GuildMemberController.js");
@@ -62,26 +64,22 @@ module.exports = {
         },
       });
       try {
-        const sounds = [
-          "./data/welcome/bonner.mp3",
-          "./data/welcome/mourao.mp3",
-          "./data/welcome/dilma.mp3",
-          "./data/welcome/jornalhoje.mp3",
-          "./data/welcome/babu.mp3",
-          "./data/welcome/bomdiaeocaralho.mp3",
-        ];
         const hour = new Date().getHours();
-        let idx = 0;
 
+        let folder = "night";
         if (4 <= hour && hour < 12) {
-          idx = _.sample([1, 4, 5]);
+          folder = "morning";
         } else if ( 12 <= hour && hour < 13) {
-          idx = 2;
+          folder = "special";
         } else if ( 13 <= hour && hour < 18) {
-          idx = 3;
+          folder = "evening";
         }
 
-        const resource = createAudioResource(sounds[idx], {
+        const folderPath = `./data/welcome/${folder}`;
+        const fileList = await readdir(folderPath);
+        const file = _.sample(fileList);
+
+        const resource = createAudioResource(`${folderPath}/${file}`, {
           inputType: StreamType.Arbitrary,
         });
 

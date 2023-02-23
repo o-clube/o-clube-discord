@@ -16,7 +16,7 @@
     "node-reel": "^1.0.12",
     "pg": "^8.8.0",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.23.2",
+    "sequelize": "^6.28.2",
     "sequelize-cli": "^6.5.1",
     "sequelize-mig": "^3.1.3"
   },

@@ -18,8 +18,8 @@ module.exports = {
       const channel = after.member.voice.channel;
       const members = [...channel.members.keys()];
 
-      const sinoId = 175419762359271424;
-      const perinniId = 752232304948281495;
+      const sinoId = "175419762359271424";
+      const perinniId = "752232304948281495";
 
       if ((members.includes(sinoId) || perinniId in members) && (after.member.id in [sinoId, perinniId])) {
         playSound("./data/welcome/somos_todos_macacos.mp3", channel);

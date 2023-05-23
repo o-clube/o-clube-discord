@@ -1,10 +1,3 @@
-const {joinVoiceChannel,
-  createAudioPlayer,
-  createAudioResource,
-  NoSubscriberBehavior,
-  StreamType,
-  AudioPlayerStatus} = require("@discordjs/voice");
-
 const _ = require("lodash");
 
 const {readdir} = require("fs/promises");
@@ -13,6 +6,7 @@ const GuildController = require("../controllers/GuildController.js");
 // eslint-disable-next-line max-len
 const GuildMemberController = require("../controllers/GuildMemberController.js");
 const db = require("../models");
+const {playSound} = require("../utils/voice.js");
 
 module.exports = {
   name: "voiceStateUpdate",
@@ -23,6 +17,14 @@ module.exports = {
       !after.deaf) {
       const channel = after.member.voice.channel;
       const members = [...channel.members.keys()];
+
+      const sinoId = 175419762359271424;
+      const perinniId = 752232304948281495;
+
+      if ((members.includes(sinoId) || perinniId in members) && (after.member.id in [sinoId, perinniId])) {
+        playSound("./data/welcome/somos_todos_macacos.mp3", channel);
+        return;
+      }
 
       let res = await GuildController.find(channel.guild.id);
 
@@ -53,16 +55,6 @@ module.exports = {
             },
           });
 
-      const connection = joinVoiceChannel({
-        channelId: channel.id,
-        guildId: channel.guild.id,
-        adapterCreator: channel.guild.voiceAdapterCreator,
-      });
-      const player = createAudioPlayer({
-        behaviors: {
-          noSubscriber: NoSubscriberBehavior.Pause,
-        },
-      });
       try {
         const hour = new Date().getHours();
 
@@ -79,21 +71,8 @@ module.exports = {
         const fileList = await readdir(folderPath);
         const file = _.sample(fileList);
 
-        const resource = createAudioResource(`${folderPath}/${file}`, {
-          inputType: StreamType.Arbitrary,
-        });
-
-        player.play(resource);
-
-        const subscription = connection.subscribe(player);
-
-        player.on(AudioPlayerStatus.Idle, () => {
-          player.stop();
-          subscription.unsubscribe();
-          connection.destroy();
-        });
+        playSound(`${folderPath}/${file}`, channel);
       } catch (error) {
-        connection.destroy();
         console.log(error);
       }
     }

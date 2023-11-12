@@ -24,6 +24,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       defaultValue: null,
     },
+    valorant: {
+      type: DataTypes.STRING,
+      defaultValue: null,
+    },
   }, {
     underscored: true,
     sequelize,

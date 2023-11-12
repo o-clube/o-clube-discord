@@ -5,7 +5,7 @@ const {
 module.exports = (sequelize, DataTypes) => {
   class GuildMember extends Model {
     static associate(models) {
-      this.belongsTo(models.guild, {foreignKey: "guild_id"});
+      this.belongsTo(models.guild, { foreignKey: "guild_id" });
     }
   }
   GuildMember.init({
@@ -38,6 +38,15 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ARRAY(DataTypes.STRING),
       defaultValue: [],
     },
+    valorant_last_match_id:
+    {
+      type: DataTypes.STRING,
+    },
+    valorant_riot_id:
+    {
+      type: DataTypes.STRING,
+    },
+
   }, {
     underscored: true,
     sequelize,

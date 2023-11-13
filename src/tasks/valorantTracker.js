@@ -37,8 +37,8 @@ async function processMember(member, channel, client) {
         const user = await client.users.fetch(member.member_id, { cache: true });
         const userAvatar = user.avatarURL()
         const weewoo = client.emojis.cache.get("857132785436196875")
-        const playerRank = rankInfo.data.data[0].currenttierpatched
-        const rankIcon = rankInfo.data.data[0].images.small
+        const playerRank = rankInfo[0].currenttierpatched
+        const rankIcon = rankInfo[0].images.small
         const embed = new EmbedBuilder()
             .setTitle(`Valorant Tracker - ${matchInfo.metadata.mode} - ${matchInfo.metadata.map}`)
             .setThumbnail(userAvatar)
@@ -91,6 +91,6 @@ module.exports = {
 
             }
         }
-        ).everyMinute().run();
+        ).everyFortyFiveMinutes().run();
     },
 };

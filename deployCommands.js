@@ -22,7 +22,7 @@ for (const file of commandFiles) {
       );
     } else {
       await rest.put(
-          Routes.applicationGuildCommands(process.env.DISCORD_CLIENT_ID, "801844724545355826"),
+          Routes.applicationCommands(process.env.DISCORD_CLIENT_ID),
           {body: commands},
       );
     }

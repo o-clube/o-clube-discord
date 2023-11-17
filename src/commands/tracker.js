@@ -1,3 +1,4 @@
+/*
 const GuildMemberController = require("../controllers/GuildMemberController");
 const {bold, SlashCommandBuilder} = require("@discordjs/builders");
 const {ChannelType, PermissionsBitField} = require("discord.js");
@@ -56,3 +57,4 @@ module.exports = {
         await interaction.reply(reply)
     },
 };
+*/

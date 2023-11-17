@@ -1,3 +1,4 @@
+/*
 const reel = require("node-reel");
 const Op = require("sequelize").Op;
 const { EmbedBuilder } = require("discord.js");
@@ -99,3 +100,4 @@ module.exports = {
         ).everyFortyFiveMinutes().run();
     },
 };
+*/

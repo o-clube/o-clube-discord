@@ -18,10 +18,10 @@
         "driver": "PostgreSQL",
         "previewLimit": 50,
         "server": "db",
-        "port": 5432,
-        "database": "postgres",
-        "username": "postgres",
-        "password": "postgres"
+        "port": 5433,
+        "database": "teste",
+        "username": "teste",
+        "password": "teste"
       }]
     },
     // Add the IDs of extensions you want installed when the container is created.

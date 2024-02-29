@@ -71,7 +71,7 @@ module.exports = {
 
         const folderPath = `./data/welcome/${folder}`;
         const fileList = await readdir(folderPath);
-        var file = _.sample(fileList);
+        let file = _.sample(fileList);
 
         if ((folder == "morning" || folder == "special") && weekday == 5) {
           file = "maconheiros-do-guns.mp3"

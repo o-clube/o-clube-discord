@@ -74,10 +74,8 @@ module.exports = {
         let file = _.sample(fileList);
 
         if ((folder == "morning" || folder == "special") && weekday == 5) {
-          file = "maconheiros-do-guns.mp3"
-        }
-
-        playSound(`${folderPath}/${file}`, channel);
+          playSound("./data/welcome/maconheiros-do-guns.mp3", channel);
+        } else  playSound(`${folderPath}/${file}`, channel);
       } catch (error) {
         console.log(error);
       }

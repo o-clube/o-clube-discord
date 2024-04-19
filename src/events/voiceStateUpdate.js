@@ -57,8 +57,7 @@ module.exports = {
 
       try {
         const date = new Date();
-        const hour = date.getHours(); 
-        const weekday = date.getDay();
+        const hour = date.getHours();
 
         let folder = "night";
         if (4 <= hour && hour < 12) {
@@ -71,11 +70,8 @@ module.exports = {
 
         const folderPath = `./data/welcome/${folder}`;
         const fileList = await readdir(folderPath);
-        let file = _.sample(fileList);
+        const file = _.sample(fileList);
 
-        if ((folder == "morning" || folder == "special") && weekday == 5) {
-          file = "maconheiros-do-guns.mp3"
-        }
 
         playSound(`${folderPath}/${file}`, channel);
       } catch (error) {
